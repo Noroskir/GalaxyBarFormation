@@ -820,6 +820,38 @@ def scatter_X_lambRe_mean():
     plt.close()
 
 
+def scatter_Q_RBar_mean():
+    rbar = np.zeros(len(gBar))
+    for i in range(len(gBar)):
+        r = P.get_param(gBar[i], "RBAR", "R")
+        rbar[i] = r
+    rbar = rbar / np.array(REbar)
+    plt.scatter(rbar, Qbar_mean)
+    plt.title("Q vs Bar Length In Effectiv Radius")
+    plt.ylabel("Q")
+    plt.xlabel(r'Bar Length in [$R_e$]')
+    plt.grid()
+    plt.savefig("figures/report/scatter_Q_Rbar_mean.pdf")
+    plt.show()
+    plt.close()
+
+
+def scatter_X_RBar_mean():
+    rbar = np.zeros(len(gBar))
+    for i in range(len(gBar)):
+        r = P.get_param(gBar[i], "RBAR", "R")
+        rbar[i] = r
+    rbar = rbar / np.array(REbar)
+    plt.scatter(rbar, Xbar_mean)
+    plt.title("X vs Bar Length In Effectiv Radius")
+    plt.ylabel("X")
+    plt.xlabel(r'Bar Length in [$R_e$]')
+    plt.grid()
+    plt.savefig("figures/report/scatter_X_Rbar_mean.pdf")
+    plt.show()
+    plt.close()
+
+
 def check_mass():
     MAbar = []
     for i in range(len(gBar)):
@@ -853,9 +885,12 @@ if __name__ == '__main__':
     # hist_Q_median()
     # hist_X_mean()
     # hist_X_median()
-    scatter_Q_sigZ_mean()
-    scatter_X_sigZ_mean()
-    scatter_Q_mass_mean()
-    scatter_X_mass_mean()
-    scatter_Q_lambRe_mean()
-    scatter_X_lambRe_mean()
+    # scatter_Q_sigZ_mean()
+    # scatter_X_sigZ_mean()
+    # scatter_Q_mass_mean()
+    # scatter_X_mass_mean()
+    # scatter_Q_lambRe_mean()
+    # scatter_X_lambRe_mean()
+    scatter_Q_RBar_mean()
+    scatter_X_RBar_mean()
+    check_mass()
