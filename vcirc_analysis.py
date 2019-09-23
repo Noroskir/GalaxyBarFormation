@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import tool_analyze as ta
 import galaxy as g
 import photometrics as pm
+from scipy import stats
 
 
 names = ta.read_filenames("data/massmge/", "_mass_mge.txt")
@@ -569,15 +570,18 @@ def stack_Q_profile_mass():
 
 
 def hist_Q_mean():
+    # KS test
+    res = stats.ks_2samp(Qbar_mean, Qdisk_mean)
+    print("\n"+"*"*20)
+    print("KS test for mean of Q:")
+    print(res)
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    # ax[0].hist(Qelli_mean)
-    # ax[0].set(title='Elliptical Galaxies', xlabel='Q')
     bins = np.linspace(0, 2.5, 11)
     ax.hist(Qdisk_mean, bins=bins, label='No Bar', alpha=0.7)
     ax.margins(0.05)
     ax.hist(Qbar_mean, bins=bins, label='Bar', alpha=0.7)
     ax.legend()
-    ax.set(title='Barred and Non-Barred Galaxies', xlabel='Q')
+    ax.set(title='Barred and Non-Barred Galaxies', xlabel='Mean of Q')
     plt.savefig("figures/report/hist_Q_mean.pdf")
     plt.show()
     plt.close()
@@ -852,6 +856,10 @@ def scatter_X_RBar_mean():
     plt.close()
 
 
+def scatter_Q_e_mean():
+    pass
+
+
 def check_mass():
     MAbar = []
     for i in range(len(gBar)):
@@ -881,7 +889,7 @@ if __name__ == '__main__':
     # plot_X_sigZ_mass()
     # plot_X_sigZ_type()
     # stack_Q_profile_mass()
-    # hist_Q_mean()
+    hist_Q_mean()
     # hist_Q_median()
     # hist_X_mean()
     # hist_X_median()
