@@ -57,13 +57,16 @@ gElli = ta.get_elliptical_galaxies(names)
 print("Ellipticals:", len(gElli))
 
 
-Rbar, Qbar = ta.read_vcirc_toomre("data/toomre/", gBar)
+#Rbar, Qbar = ta.read_vcirc_toomre("data/toomre/", gBar)
+Rbar, Qbar = ta.read_toomre("data/toomre/", gBar)
 Rbar, Xbar = ta.read_swing_ampl(gBar)
 Mbar = ta.read_stellar_mass(gBar)
-Rdisk, Qdisk = ta.read_vcirc_toomre("data/toomre/", gDisk)
+#Rdisk, Qdisk = ta.read_vcirc_toomre("data/toomre/", gDisk)
+Rdisk, Qdisk = ta.read_toomre("data/toomre/", gDisk)
 Rdisk, Xdisk = ta.read_swing_ampl(gDisk)
 Mdisk = ta.read_stellar_mass(gDisk)
-Relli, Qelli = ta.read_vcirc_toomre("data/toomre/", gElli)
+#Relli, Qelli = ta.read_vcirc_toomre("data/toomre/", gElli)
+Relli, Qelli = ta.read_toomre("data/toomre/", gElli)
 Relli, Xelli = ta.read_swing_ampl(gElli)
 Melli = ta.read_stellar_mass(gElli)
 
@@ -228,7 +231,7 @@ def plot_Q_total_mass():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].plot(Rbar[i], Qbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -262,7 +265,7 @@ def plot_X_total_mass():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].plot(Rbar[i], Xbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -304,7 +307,7 @@ def plot_Q_total_type():
             c = cmap(types.index(tBar[i][1])/valmax)
         ax[2].plot(Rbar[i], Qbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -348,7 +351,7 @@ def plot_X_total_type():
             c = cmap(types.index(tBar[i][1])/valmax)
         ax[2].plot(Rbar[i], Xbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -384,7 +387,7 @@ def plot_Q_sigZ_mass():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].plot(sigZbar[i], Qbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -426,7 +429,7 @@ def plot_Q_sigZ_type():
             c = cmap(types.index(tBar[i][1])/valmax)
         ax[2].plot(sigZbar[i], Qbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -462,7 +465,7 @@ def plot_X_sigZ_mass():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].plot(sigZbar[i], Xbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -504,7 +507,7 @@ def plot_X_sigZ_type():
             c = cmap(types.index(tBar[i][1])/valmax)
         ax[2].plot(sigZbar[i], Xbar[i], 'x', color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -550,7 +553,7 @@ def stack_Q_profile_mass():
         R, Q = ta.stack_curves(RSbar[i], QSbar[i], step, threshold=1)
         ax[2].plot(R, Q, color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -570,7 +573,6 @@ def stack_Q_profile_mass():
 
 
 def hist_Q_mean():
-    # KS test
     res = stats.ks_2samp(Qbar_mean, Qdisk_mean)
     print("\n"+"*"*20)
     print("KS test for mean of Q:")
@@ -588,9 +590,11 @@ def hist_Q_mean():
 
 
 def hist_Q_median():
+    res = stats.ks_2samp(Qbar_median, Qdisk_median)
+    print("\n"+"*"*20)
+    print("KS test for median of Q: ")
+    print(res)
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    # ax[0].hist(Qelli_median)
-    # ax[0].set(title='Elliptical Galaxies', xlabel='Q')
     bins = np.linspace(0, 2.5, 11)
     ax.hist(Qdisk_median, bins=bins, label='No Bar', alpha=0.7)
     ax.margins(0.05)
@@ -603,9 +607,11 @@ def hist_Q_median():
 
 
 def hist_X_mean():
+    res = stats.ks_2samp(Xbar_mean, Xdisk_mean)
+    print("\n"+"*"*20)
+    print("KS test for mean of X: ")
+    print(res)
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    # ax[0].hist(Xelli_mean)
-    # ax[0].set(title='Elliptical Galaxies', xlabel='X')
     ax.hist(Xdisk_median, label='No Bar', alpha=.7)
     ax.hist(Xbar_median, label='Bar', alpha=.7)
     ax.legend()
@@ -616,12 +622,36 @@ def hist_X_mean():
 
 
 def hist_X_median():
+    res = stats.ks_2samp(Xbar_median, Xdisk_median)
+    print("\n"+"*"*20)
+    print("KS test for median of X: ")
+    print(res)
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
     ax.hist(Xdisk_median, label='No Bar', alpha=.7)
     ax.hist(Xbar_median, label='Bar', alpha=.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='X')
     plt.savefig("figures/report/hist_X_median.pdf")
+    plt.show()
+    plt.close()
+
+
+def hist_Q_types_mean(hTypes, title):
+    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+    x, Qbar_m = ta.filter_type(Qbar_mean, Qbar_mean, gBar, hTypes)
+    x, Qdisk_m = ta.filter_type(Qdisk_mean, Qdisk_mean, gDisk, hTypes)
+    res = stats.ks_2samp(Qbar_m, Qdisk_m)
+    print("\n"+"*"*20)
+    print("KS test for mean of Q: ", hTypes)
+    print(res)
+    ax.hist(Qdisk_m, label='No Bar', alpha=0.7)
+    ax.margins(0.05)
+    ax.hist(Qbar_m, label='Bar', alpha=0.7)
+    ax.legend()
+    ax.set(title='Barred and Non-Barred Galaxies of Type ' +
+           title, xlabel='Mean of Q')
+    title = title.replace(' ', '_')
+    plt.savefig("figures/report/hist_Q_types_"+title+".pdf")
     plt.show()
     plt.close()
 
@@ -643,7 +673,7 @@ def scatter_Q_mass_mean():
         c = cmap((sigZbar_mean[i]-valmin)/(valmax-valmin))
         ax[2].scatter(Mbar[i], Qbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -679,7 +709,7 @@ def scatter_X_mass_mean():
         c = cmap((sigZbar_mean[i]-valmin)/(valmax-valmin))
         ax[2].scatter(Mbar[i], Xbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].grid()
@@ -713,7 +743,7 @@ def scatter_Q_sigZ_mean():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].scatter(sigZbar_mean[i], Qbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
@@ -743,7 +773,7 @@ def scatter_X_sigZ_mean():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].scatter(sigZbar_mean[i], Xbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
@@ -776,7 +806,7 @@ def scatter_Q_lambRe_mean():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].scatter(lambReBar[i], Qbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].set_xlabel(r'$\lambda_{Re}$')
@@ -809,7 +839,7 @@ def scatter_X_lambRe_mean():
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
         ax[2].scatter(lambReBar[i], Xbar_mean[i], color=c)
     ax[0].set_title('Elliptical Galaxies')
-    ax[1].set_title('Late Type Galaxies Witout Bar')
+    ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
     for i in [0, 1, 2]:
         ax[i].set_xlabel(r'$\lambda_{Re}$')
@@ -873,32 +903,34 @@ def check_mass():
 
 
 if __name__ == '__main__':
-    # n = 'NGC6278'
-    # plot_Q_profile(n)
-    # plot_X_profile(n)
-    # plot_Q_X_profile(n)
-    # plot_sigR_profile(n)
-    # plot_vcirc_profile(n)
-    # plot_SMD_profile(n)
-    # plot_Q_total_mass()
-    # plot_X_total_mass()
-    # plot_Q_total_type()
-    # plot_X_total_type()
-    # plot_Q_sigZ_mass()
-    # plot_Q_sigZ_type()
-    # plot_X_sigZ_mass()
-    # plot_X_sigZ_type()
-    # stack_Q_profile_mass()
+    n = 'NGC6278'
+    plot_Q_profile(n)
+    plot_X_profile(n)
+    plot_Q_X_profile(n)
+    plot_sigR_profile(n)
+    plot_vcirc_profile(n)
+    plot_SMD_profile(n)
+    plot_Q_total_mass()
+    plot_X_total_mass()
+    plot_Q_total_type()
+    plot_X_total_type()
+    plot_Q_sigZ_mass()
+    plot_Q_sigZ_type()
+    plot_X_sigZ_mass()
+    plot_X_sigZ_type()
+    stack_Q_profile_mass()
     hist_Q_mean()
-    # hist_Q_median()
-    # hist_X_mean()
-    # hist_X_median()
-    # scatter_Q_sigZ_mean()
-    # scatter_X_sigZ_mean()
-    # scatter_Q_mass_mean()
-    # scatter_X_mass_mean()
-    # scatter_Q_lambRe_mean()
-    # scatter_X_lambRe_mean()
+    hist_Q_median()
+    hist_X_mean()
+    hist_X_median()
+    hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
+    hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
+    scatter_Q_sigZ_mean()
+    scatter_X_sigZ_mean()
+    scatter_Q_mass_mean()
+    scatter_X_mass_mean()
+    scatter_Q_lambRe_mean()
+    scatter_X_lambRe_mean()
     scatter_Q_RBar_mean()
     scatter_X_RBar_mean()
     check_mass()

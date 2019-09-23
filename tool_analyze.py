@@ -70,35 +70,29 @@ def read_toomre(directory, names):
         directory (str): location of files
         names (list): list of galaxy names
     Returns:
-        np.array: np.arrays of R, Q, e_Q"""
+        np.array: np.arrays of R, Q"""
     toomre = []
-    e_toomre = []
     radius = []  # arcsec
     for n in names:
-        f = open(directory + n + '_data.txt', 'r')
+        f = open(directory + n + '_Q_data.txt', 'r')
         lines = f.readlines()
         R = []
         Q = []
         e_Q = []
         for l in lines:
             l = l.split()
-            if len(l) > 4:
+            if len(l) > 4 and l[0] != '#':
                 try:
                     R.append(float(l[0]))
-                    Q.append(float(l[2]))
-                    if float(l[2]) > 200:
-                        print("Galaxie:")
-                        print(n)
-                    e_Q.append(float(l[3]))
-                except:
-                    pass
+                    Q.append(float(l[1]))
+                except Exception as e:
+                    print(e)
+                    print("Error reading Toomre parameter")
         toomre.append(np.array(Q))
-        e_toomre.append(np.array(e_Q))
         radius.append(np.array(R))
     R = np.array(radius)  # arcsec
     Q = np.array(toomre)
-    e_Q = np.array(e_toomre)
-    return R, Q, e_Q
+    return R, Q
 
 
 def read_vcirc_toomre(directory, names):
@@ -260,80 +254,6 @@ def get_type(names):
     return [d[n] for n in names]
 
 
-def barred_unbarred(names, title='', vcirc=False):
-    """Compare barred and unbarred galaxies in their Toomre Parameter
-    Args:
-        None.
-    Returns:
-        None."""
-    barred = P.is_barred(names)
-    disked = P.is_disked(names)
-    dGalax = []
-    bGalax = []
-    for i in range(len(disked)):
-        if disked[i] and not barred[i]:
-            dGalax.append(names[i])
-        elif barred[i]:
-            bGalax.append(names[i])
-    # from data
-    if not vcirc:
-        Rd, Qd, e_Qd = read_toomre("data/toomre/", dGalax)
-        Rb, Qb, e_Qb = read_toomre("data/toomre/", bGalax)
-    else:
-        # from vcirc modelling
-        Rd, Qd = read_vcirc_toomre("data/toomre/", dGalax)
-        Rb, Qb = read_vcirc_toomre("data/toomre/", bGalax)
-    Rdeff = np.array(get_effectiveR(dGalax))
-    Rbeff = np.array(get_effectiveR(bGalax))
-    Rd = Rd / Rdeff
-    Rb = Rb / Rbeff
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    axes[0].grid()
-    axes[1].grid()
-    for i in range(len(Rd)):
-        if i == 0:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black', label='Disk')
-        else:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black')
-    for i in range(len(Rb)):
-        if i == 0:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red', label='Bar')
-        else:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red')
-    axes[0].set_title('No Bar')
-    axes[0].set_ylim(0, 3)
-    axes[0].set_xlim(0, 8)
-    axes[0].set_xlabel(r'R in $[R_e]$')
-    axes[0].set_ylabel('Q')
-    axes[1].set_title('With Bar')
-    axes[1].set_ylim(0, 3)
-    axes[1].set_xlim(0, 8)
-    axes[1].set_xlabel(r'R in $[R_e]$')
-    axes[1].set_ylabel('Q')
-    if title != '':
-        fig.suptitle(title)
-    plt.show()
-    plt.close()
-
-
-def compare_types(names, hType, Rcut=False, title='', vcirc=False):
-    """Compare two types of galaxies in their Toomre parameter
-    Args:
-        names (list): names of galaxies
-        hType (str): Hubble type
-    Returns:
-        None."""
-    lTypes = get_type(names)
-    l1 = []
-    for i in range(len(lTypes)):
-        if lTypes[i] == hType:
-            l1.append(names[i])
-    if Rcut:
-        compare_dominated_regions(l1, title, vcirc)
-    else:
-        barred_unbarred(l1, title, vcirc)
-
-
 def get_disk_galaxies(names):
     """Filter out the disk galaxies without a bar.
     Args:
@@ -442,112 +362,6 @@ def mass_bin(R, Q, M, mbins):
     return Rnew, Qnew
 
 
-def compare_dominated_regions(names, title='', vcirc=False):
-    """Compare the disk and bar dominated regions of a galaxy type
-    in their Toomre parameter.
-    Args:
-        names (list): names of galaxies
-        hType (str): Hubble type
-    Returns:
-        None.
-    """
-    barred = P.is_barred(names)
-    disked = P.is_disked(names)
-    dGalax = []
-    bGalax = []
-    for i in range(len(disked)):
-        if disked[i] and not barred[i]:
-            dGalax.append(names[i])
-        elif barred[i]:
-            bGalax.append(names[i])
-    if not vcirc:
-        Rd, Qd, e_Qd = read_toomre("data/toomre/", dGalax)
-        Rb, Qb, e_Qb = read_toomre("data/toomre/", bGalax)
-    else:
-        Rd, Qd = read_vcirc_toomre("data/toomre/", dGalax)
-        Rb, Qb = read_vcirc_toomre("data/toomre/", bGalax)
-    Rdeff = np.array(get_effectiveR(dGalax))
-    Rbeff = np.array(get_effectiveR(bGalax))
-    Rd, Qd = filter_dom_regions(dGalax, Rd, Qd, filt='disk')
-    Rb, Qb = filter_dom_regions(bGalax, Rb, Qb, filt='bar')
-    Rd = Rd / Rdeff
-    Rb = Rb / Rbeff
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    axes[0].grid()
-    axes[1].grid()
-    for i in range(len(Rd)):
-        if i == 0:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black', label='Disk')
-        else:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black')
-    for i in range(len(Rb)):
-        if i == 0:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red', label='Bar')
-        else:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red')
-    axes[0].set_title('No Bar')
-    axes[0].set_ylim(0, 3)
-    axes[0].set_xlim(0, 8)
-    axes[0].set_xlabel(r'R in $[R_e]$')
-    axes[0].set_ylabel('Q')
-    axes[1].set_title('With Bar')
-    axes[1].set_ylim(0, 3)
-    axes[1].set_xlim(0, 8)
-    axes[1].set_xlabel(r'R in $[R_e]$')
-    axes[1].set_ylabel('Q')
-    if title != '':
-        fig.suptitle(title)
-    plt.show()
-    plt.close()
-
-
-def toomre_ellipticals(names):
-    """Plot the toomre parameter for elliptical galaxies.
-    Args:
-        names (list): names of the galaxies
-    Returns:
-        None.
-    """
-    E0, E1, E2, E3, E4, E5, E6, E7 = [], [], [], [], [], [], [], []
-    hTypes = get_type(names)
-    for i in range(len(hTypes)):
-        if hTypes[i] == "E0":
-            E0.append(names[i])
-        elif hTypes[i] == "E1":
-            E1.append(names[i])
-        elif hTypes[i] == "E2":
-            E2.append(names[i])
-        elif hTypes[i] == "E3":
-            E3.append(names[i])
-        elif hTypes[i] == "E4":
-            E4.append(names[i])
-        elif hTypes[i] == "E5":
-            E5.append(names[i])
-        elif hTypes[i] == "E6":
-            E6.append(names[i])
-        elif hTypes[i] == "E7":
-            E7.append(names[i])
-
-    E = [E0, E1, E2, E3, E4, E5, E6, E7]
-    color = ['yellow', 'green', 'blue', 'red',
-             'black', 'lightblue', 'brown', 'orange']
-    labels = ['E0', 'E1', 'E2', 'E3', 'E4', 'E5', 'E6', 'E7']
-    for i in range(len(E)):
-        print(len(E[i]))
-        R, Q = read_vcirc_toomre("data/toomre/", E[i])
-        # R, Q, e_Q = read_toomre("data/toomre/", E[i])
-        Reff = np.array(get_effectiveR(E[i]))
-        R = R / Reff
-        for j in range(len(E[i])):
-            if j == 0:
-                plt.plot(R[j], Q[j], 'x', color=color[i], label=labels[i])
-            else:
-                plt.plot(R[j], Q[j], 'x', color=color[i])
-    plt.grid()
-    plt.legend()
-    plt.show()
-
-
 def read_mass(names):
     """Get the total galaxy mass.
     Args:
@@ -618,136 +432,6 @@ def mass_overview(names):
     plt.close()
 
 
-def compare_by_mass(names, m_low, m_upp, vcirc=False, title=''):
-    """Compare barred and unbarred galaxies by their mass.
-    Args:
-        names (list): names of galaxies
-        m_low (float): lower bound of galaxy mass
-        m_upp (float): upper bound of galaxy mass
-    Returns:
-        None.
-    """
-    barred = P.is_barred(names)
-    disked = P.is_disked(names)
-    dGalax = []
-    bGalax = []
-    for i in range(len(disked)):
-        if disked[i] and not barred[i]:
-            dGalax.append(names[i])
-        elif barred[i]:
-            bGalax.append(names[i])
-    Md = read_mass(dGalax)
-    Mb = read_mass(bGalax)
-    lbar = []
-    ldisk = []
-    for i in range(len(Md)):
-        if Md[i] >= m_low and Md[i] <= m_upp:
-            ldisk.append(dGalax[i])
-    for i in range(len(Mb)):
-        if Mb[i] >= m_low and Mb[i] <= m_upp:
-            lbar.append(bGalax[i])
-    dGalax = ldisk
-    bGalax = lbar
-    if not vcirc:
-        Rd, Qd, e_Qd = read_toomre("data/toomre/", dGalax)
-        Rb, Qb, e_Qb = read_toomre("data/toomre/", bGalax)
-    else:
-        Rd, Qd = read_vcirc_toomre("data/toomre/", dGalax)
-        Rb, Qb = read_vcirc_toomre("data/toomre/", bGalax)
-    Rd, Qd = filter_dom_regions(dGalax, Rd, Qd, filt='disk')
-    Rb, Qb = filter_dom_regions(bGalax, Rb, Qb, filt='bar')
-    Rdeff = np.array(get_effectiveR(dGalax))
-    Rbeff = np.array(get_effectiveR(bGalax))
-    Rd = Rd / Rdeff
-    Rb = Rb / Rbeff
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    axes[0].grid()
-    axes[1].grid()
-    for i in range(len(Rd)):
-        if i == 0:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black', label='Disk')
-        else:
-            axes[0].plot(Rd[i], Qd[i], 'x', color='black')
-    for i in range(len(Rb)):
-        if i == 0:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red', label='Bar')
-        else:
-            axes[1].plot(Rb[i], Qb[i], 'x', color='red')
-    axes[0].set_title('No Bar')
-    axes[0].set_ylim(0, 3)
-    axes[0].set_xlim(0, 8)
-    axes[0].set_xlabel(r'R in $[R_e]$')
-    axes[0].set_ylabel('Q')
-    axes[1].set_title('With Bar')
-    axes[1].set_ylim(0, 3)
-    axes[1].set_xlim(0, 8)
-    axes[1].set_xlabel(r'R in $[R_e]$')
-    axes[1].set_ylabel('Q')
-    if title != '':
-        fig.suptitle(title)
-    plt.show()
-    plt.close()
-
-
-def compare_by_redshift(names, z_int1, z_int2):
-    """Compare the Toomre parameter by the redshift of the galaxies.
-    Args:
-        names (list): names of the galaxies
-        z_int1 (tuple): first redshift interval (lower_z, upper_z)
-        z_int2 (tuple): second redshift interval (lower_z, upper_z)
-    Returns:
-        None."""
-    redz = P.get_redshift(names)
-    g1, g2 = [], []
-    for i in range(len(names)):
-        if redz[i] >= z_int1[0] and redz[i] <= z_int1[1]:
-            g1.append(names[i])
-        elif redz[i] >= z_int2[0] and redz[i] <= z_int2[1]:
-            g2.append(names[i])
-    x1, y1, e1 = read_toomre("data/toomre/", g1)
-    x2, y2, e2 = read_toomre("data/toomre/", g2)
-    x1eff = get_effectiveR(g1)
-    x2eff = get_effectiveR(g2)
-    x1 = x1 / x1eff
-    x2 = x2 / x2eff
-    title1 = "Galaxies in redshift interval {:2.3f} to {:2.3f}".format(
-        z_int1[0], z_int1[1])
-    title2 = "Galaxies in redshift interval {:2.3f} to {:2.3f}".format(
-        z_int2[0], z_int2[1])
-    plot_against(x1, y1, title1, x2, y2, title2, r'R in $[R_e]$', "Q")
-
-
-def plot_against(x1, y1, title1, x2, y2, title2, xlabel, ylabel, title=''):
-    """Plot two data sets against each other."""
-    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
-    for i in range(len(x1)):
-        if i == 0:
-            ax[0].plot(x1[i], y1[i], 'x', color='black')
-        else:
-            ax[0].plot(x1[i], y1[i], 'x', color='black')
-    for i in range(len(x2)):
-        if i == 0:
-            ax[1].plot(x2[i], y2[i], 'x', color='red')
-        else:
-            ax[1].plot(x2[i], y2[i], 'x', color='red')
-    ax[0].grid()
-    ax[1].grid()
-    ax[0].set_title(title1)
-    ax[0].set_ylim(0, 3)
-    ax[0].set_xlim(0, 8)
-    ax[0].set_xlabel(xlabel)
-    ax[0].set_ylabel(ylabel)
-    ax[1].set_title(title2)
-    ax[1].set_ylim(0, 3)
-    ax[1].set_xlim(0, 8)
-    ax[1].set_xlabel(xlabel)
-    ax[1].set_ylabel(ylabel)
-    if title != '':
-        fig.suptitle(title)
-    plt.show()
-    plt.close()
-
-
 def filter_dom_regions(names, R, Q, filt='bar'):
     """Get dominated regions of bar or bulge. Return shortened R and Q values.
     Args:
@@ -798,25 +482,25 @@ def filter_radius(R, Q, rmax):
     return R, Q
 
 
-if __name__ == "__main__":
-    names = read_filenames("data/massmge/", "_mass_mge.txt")
-#    mass_overview(names)
-    # not in fits file:
-    not_there = ['IC1755', 'IC1652', 'IC0540', 'IC0480', 'IC2101', 'IC2247', 'IC2487', 'IC5376', 'MCG-01-54-016', 'MCG-02-02-040', 'MCG-02-03-015', 'NGC0169', 'NGC0177', 'NGC0216', 'NGC0217', 'NGC0429', 'NGC0444', 'NGC0504', 'NGC0529', 'NGC0681', 'NGC0741', 'NGC0781', 'NGC0810', 'NGC0825', 'NGC1056', 'NGC1542', 'NGC2480', 'NGC2481', 'NGC2554', 'NGC3160', 'NGC3303', 'NGC4149', 'NGC4676A', 'NGC4676B', 'NGC4841A', 'NGC4874', 'NGC5216', 'NGC5218', 'NGC5614', 'NGC5797', 'NGC5908', 'NGC5930', 'NGC5934', 'NGC5953', 'NGC5966', 'NGC5987', 'NGC6081', 'NGC6168', 'NGC6310', 'NGC6338', 'NGC7025', 'NGC7436B', 'NGC7608', 'NGC7625', 'NGC7684',
-                 'NGC7711', 'NGC7783NED01', 'NGC7800', 'SDSS-C4-DR33247', 'UGC00148', 'UGC00335NED02', 'UGC00809', 'UGC00841', 'UGC01057', 'UGC03151', 'UGC03539', 'UGC03899', 'UGC03969', 'UGC04029', 'UGC04197', 'UGC04280', 'UGC04722', 'UGC05113', 'UGC05498NED01', 'UGC05598', 'UGC05990', 'UGC06036', 'UGC08107', 'UGC08778', 'UGC09537', 'UGC09665', 'UGC09873', 'UGC09892', 'UGC10123', 'UGC10205', 'UGC10257', 'UGC10297', 'UGC10331', 'UGC10380', 'UGC10384', 'UGC10650', 'UGC10710', 'UGC10972', 'UGC11680NED01', 'UGC11717', 'UGC12054', 'UGC12308', 'UGC12518', 'UGC12519', 'UGC12723', 'UGC12857', 'VV488NED02']
-
-    # not in CALIFA_master_selection.txt:
-    not_there += ['IC2402', 'LSBCF560-04', 'MCG-02-02-086', 'NGC2484']
-
-    # also not there:
-    not_there += ['IC2378', 'NGC0647']
-
-    # for vcirc Q
-    not_there += ['NGC0171', 'NGC3381', "NGC5631"]
-
-    for n in not_there:
-        names.remove(n)
-
-    # compare_dominated_regions(names)
-
-    # toomre_ellipticals(names)
+def filter_type(R, Q, names, hType):
+    """Return the galaxies of a specific Hubble Type.
+    Args:
+        R (np.array): radial values
+        Q (np.array): Toomre parameter
+        names (list): galaxies to filter
+        hType (str or list): hubble type
+    Returns:
+        np.arrays: R and Q values of galaxies with Hubble type.
+    """
+    if type(hType) == str:
+        hType = [hType]
+    rnames = []
+    rR = []
+    rQ = []
+    t = get_type(names)
+    for i in range(len(names)):
+        if t[i] in hType:
+            rnames.append(names[i])
+            rR.append(R[i])
+            rQ.append(Q[i])
+    return np.array(rR), np.array(rQ)
