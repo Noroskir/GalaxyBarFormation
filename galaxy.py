@@ -121,6 +121,23 @@ class Galaxy:
                 pass
         return paramLM, paramDM
 
+    def get_stellar_mass(self):
+        """Calculate the stellar mass from the MGE expansion.
+        Args:
+            None
+        Returns:
+            float: stellar mass in solar masses.
+        """
+        stellM = []
+        for i in range(len(self.pGaussLM)):
+            M0 = self.massLight * self.pGaussLM[i][0]  # M_sun/pc^2
+            sig = self.pGaussLM[i][1] * \
+                (self.distance * np.pi / (3600*180) * 1e6)  # pc
+            q = self.pGaussLM[i][2]
+            M = 2 * np.pi * M0 * sig**2 * q
+            stellM.append(M)
+        return sum(stellM)
+
     def kappa_sq(self, R, vc):
         """Calculate the epicyclic frequency kappa^2.
         Args:
@@ -145,6 +162,16 @@ class Galaxy:
         smd = self.massLight * self.mge_LM(R, np.zeros(len(R)))
         return smd
 
+    def darkmatter_surfMD(self, R):
+        """Calculate the stellar surface mass density at radius R.
+        Args:
+            R (np.array): the radial values
+        Returns:
+            np.array: stellar surface mass density in [M_sun/pc^2].
+        """
+        smd = self.mge_DM(R, np.zeros(len(R)))
+        return smd
+
     def toomre_param(self, R, vc, sigma_R, surfMD):
         """Calculate the Toomre paramter from the data.
         Args:
@@ -164,6 +191,22 @@ class Galaxy:
         sigma_crit = 3.36 * const.G.value * surfMD / kappa * 1e-3
         Q = sigma_R / sigma_crit
         return Q
+
+    def get_toomre(self):
+        """Return the Toomre parameter and error.
+        Args:
+            None
+        Returns:
+            Q, eQ: np.arrays.
+        """
+        R = self.data['R']
+        sigma_R = np.sqrt(self.data['vRR'])
+        e_sigma_R = 0.5 / sigma_R * self.data['e_vRR']
+        vc = self.velocity_vcirc()
+        surfMD = self.stellar_surfMD(R)
+        Q = self.toomre_param(R, vc, sigma_R, surfMD)
+        eQ = Q / sigma_R * e_sigma_R
+        return Q, eQ
 
     def swing_amplif_X(self):
         """Calculate the swing amplification parameter X profile.

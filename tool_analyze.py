@@ -213,16 +213,16 @@ def get_sigma_Z(names, R=None):
     sigZ = []
     e_sigZ = []
     for i in range(len(names)):
-        G = g.Galaxy("data/sRsz_data/", "data/massmge/", names[i])
+        G = g.Galaxy(names[i])
         if R == None:
-            s = np.sqrt(G.data_cyl['vzz'])
-            e_s = 0.5/s * G.data_cyl['e_vzz']
+            s = np.sqrt(G.data['vzz'])
+            e_s = 0.5/s * G.data['e_vzz']
             sigZ.append(s)
             e_sigZ.append(e_s)
         else:
-            r = G.data_cyl['R']
-            s = np.sqrt(G.data_cyl['vzz'])
-            e_s = 0.5/s * G.data_cyl['e_vzz']
+            r = G.data['R']
+            s = np.sqrt(G.data['vzz'])
+            e_s = 0.5/s * G.data['e_vzz']
             SZ = []
             e_SZ = []
             for j in range(len(r)):
