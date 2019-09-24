@@ -254,6 +254,19 @@ def get_type(names):
     return [d[n] for n in names]
 
 
+def get_redshift(names):
+    """Get redshift of galaxies.
+    Args:
+        names (list): list of galaxie names.
+    Returns:
+        list: list with redshifts."""
+    redshift = np.zeros(len(names))
+    for i in range(len(names)):
+        z = P.data['REDSHIFT'][0][P.index[names[i]]]
+        redshift[i] = z
+    return redshift
+
+
 def get_disk_galaxies(names):
     """Filter out the disk galaxies without a bar.
     Args:
@@ -483,7 +496,7 @@ def filter_radius(R, Q, rmax):
 
 
 def filter_type(R, Q, names, hType):
-    """Return the galaxies of a specific Hubble Type.
+    """Return the R and Q values of galaxies of a specific Hubble Type.
     Args:
         R (np.array): radial values
         Q (np.array): Toomre parameter

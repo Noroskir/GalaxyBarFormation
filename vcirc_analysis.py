@@ -494,7 +494,7 @@ def hist_Q_mean():
     ax.hist(Qbar_mean, bins=bins, label='Bar', alpha=0.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='Mean of Q')
-    plt.savefig("figures/report/hist_Q_mean.pdf")
+    plt.savefig("figures/report/Integrated/hist_Q_mean.pdf")
     plt.show()
     plt.close()
 
@@ -511,7 +511,7 @@ def hist_Q_median():
     ax.hist(Qbar_median, bins=bins, label='Bar', alpha=0.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='Q')
-    plt.savefig("figures/report/hist_Q_median.pdf")
+    plt.savefig("figures/report/Integrated/hist_Q_median.pdf")
     plt.show()
     plt.close()
 
@@ -527,7 +527,7 @@ def hist_X_mean():
     ax.hist(Xbar_median, bins=bins, label='Bar', alpha=.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='X')
-    plt.savefig("figures/report/hist_X_mean.pdf")
+    plt.savefig("figures/report/Integrated/hist_X_mean.pdf")
     plt.show()
     plt.close()
 
@@ -543,7 +543,7 @@ def hist_X_median():
     ax.hist(Xbar_median, bins=bins, label='Bar', alpha=.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='X')
-    plt.savefig("figures/report/hist_X_median.pdf")
+    plt.savefig("figures/report/Integrated/hist_X_median.pdf")
     plt.show()
     plt.close()
 
@@ -564,7 +564,7 @@ def hist_Q_types_mean(hTypes, title):
     ax.set(title='Barred and Non-Barred Galaxies of Type ' +
            title, xlabel='Mean of Q')
     title = title.replace(' ', '_')
-    plt.savefig("figures/report/hist_Q_types_"+title+".pdf")
+    plt.savefig("figures/report/Integrated/hist_Q_types_"+title+".pdf")
     plt.show()
     plt.close()
 
@@ -911,12 +911,12 @@ if __name__ == '__main__':
     # plot_X_sigZ_mass()
     # plot_X_sigZ_type()
     # stack_Q_profile_mass()
-    # hist_Q_mean()
-    # hist_Q_median()
-    # hist_X_mean()
-    # hist_X_median()
-    # hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
-    # hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
+    hist_Q_mean()
+    hist_Q_median()
+    hist_X_mean()
+    hist_X_median()
+    hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
+    hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
     # scatter_Q_mass_mean()
     # scatter_X_mass_mean()
     # scatter_Q_sigZ_mean()
