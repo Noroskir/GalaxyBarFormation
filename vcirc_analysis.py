@@ -570,7 +570,8 @@ def hist_Q_types_mean(hTypes, title):
 
 
 def scatter_Q_mass_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(sigZelli_mean, np.append(
         sigZbar_mean, sigZdisk_mean)))
@@ -588,25 +589,26 @@ def scatter_Q_mass_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(9, 11.8)
         ax[i].set_ylim(0.3, 45)
         ax[i].set_xlabel(r'Stellar Mass [log$_{10}($M/M$_{sun}$)]')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q vs Stellar Mass')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     clb = fig.colorbar(sm, ax=ax.ravel().tolist())
     clb.set_label(r'$\sigma_z$ [km/s]')
-    plt.savefig("figures/report/scatter_Q_mass_mean.pdf")
+    plt.savefig("figures/report/GalaxyProp/scatter_Q_mass_mean.pdf")
     plt.show()
     plt.close()
 
 
 def scatter_Q_mass_median():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(sigZelli_mean, np.append(
         sigZbar_mean, sigZdisk_mean)))
@@ -624,12 +626,12 @@ def scatter_Q_mass_median():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(9, 11.8)
         ax[i].set_ylim(0.3, 45)
         ax[i].set_xlabel(r'Stellar Mass [log$_{10}($M/M$_{sun}$)]')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q vs Stellar Mass')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -642,7 +644,8 @@ def scatter_Q_mass_median():
 
 
 def scatter_X_mass_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(sigZelli_mean, np.append(
         sigZbar_mean, sigZdisk_mean)))
@@ -660,25 +663,26 @@ def scatter_X_mass_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(9, 11.8)
         ax[i].set_ylim(0.2, 1e2)
         ax[i].set_xlabel(r'Stellar Mass [log$_{10}($M/M$_{sun}$)]')
-        ax[i].set_ylabel(r'X')
     plt.suptitle('Swing Amplification Parameter X vs Stellar Mass')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     clb = fig.colorbar(sm, ax=ax.ravel().tolist())
     clb.set_label(r'$\sigma_z$ [km/s]')
-    plt.savefig("figures/report/scatter_X_mass_mean.pdf")
+    plt.savefig("figures/report/GalaxyProp/scatter_X_mass_mean.pdf")
     plt.show()
     plt.close()
 
 
 def scatter_Q_sigZ_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -694,11 +698,11 @@ def scatter_Q_sigZ_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].set_xlim(25, 280)
         ax[i].set_ylim(0.3, 45)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'Q')
         ax[i].grid()
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -711,7 +715,8 @@ def scatter_Q_sigZ_mean():
 
 
 def scatter_X_sigZ_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -727,12 +732,12 @@ def scatter_X_sigZ_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(25, 280)
         ax[i].set_ylim(0.2, 1e2)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'X')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -744,7 +749,8 @@ def scatter_X_sigZ_mean():
 
 
 def scatter_Q_lambRe_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -763,12 +769,12 @@ def scatter_Q_lambRe_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(0, .9)
         ax[i].set_ylim(0.3, 45)
         ax[i].set_xlabel(r'$\lambda_{Re}$')
-        ax[i].set_ylabel(r'Q')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -780,7 +786,8 @@ def scatter_Q_lambRe_mean():
 
 
 def scatter_X_lambRe_mean():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -799,12 +806,12 @@ def scatter_X_lambRe_mean():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(0, .9)
         ax[i].set_ylim(0.2, 1e2)
         ax[i].set_xlabel(r'$\lambda_{Re}$')
-        ax[i].set_ylabel(r'X')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
@@ -911,21 +918,21 @@ if __name__ == '__main__':
     # plot_X_sigZ_mass()
     # plot_X_sigZ_type()
     # stack_Q_profile_mass()
-    hist_Q_mean()
-    hist_Q_median()
-    hist_X_mean()
-    hist_X_median()
-    hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
-    hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
+    # hist_Q_mean()
+    # hist_Q_median()
+    # hist_X_mean()
+    # hist_X_median()
+    # hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
+    # hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
     # scatter_Q_mass_mean()
-    # scatter_X_mass_mean()
+    scatter_X_mass_mean()
     # scatter_Q_sigZ_mean()
     # scatter_X_sigZ_mean()
     # scatter_Q_lambRe_mean()
     # scatter_X_lambRe_mean()
     # scatter_Q_RBar_mean()
     # scatter_X_RBar_mean()
-    scatter_Q_e_mean()
-    scatter_X_e_mean()
+    # scatter_Q_e_mean()
+    # scatter_X_e_mean()
     # scatter_Q_mass_median()
     # check_mass()

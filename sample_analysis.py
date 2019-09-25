@@ -93,9 +93,54 @@ def plot_overview():
     nRedshift = bin_redshift(names)
     ax[2].bar(sRedshift, nRedshift)
     ax[2].set_title(r'Redshift (x10$^{-2}$)')
+    plt.savefig("figures/report/sample_overview.pdf")
+    plt.show()
+    plt.close()
+
+
+def plot_bar_sample():
+    sTypes = ['E', 'S0', 'Sa', 'Sb', 'Sc', 'Sd']
+    nTypes = bin_type(gBar)
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
+    ax[0].bar(sTypes, nTypes)
+    ax[0].set_ylabel('Number')
+    ax[0].set_title('Hubble Type')
+    sMass = ['9', '9.5', '10', '10.5', '11', '11.5']
+    nMass = bin_mass(gBar)
+    ax[1].bar(sMass, nMass)
+    ax[1].set_title(r'log(M/M$_\odot$)')
+    sRedshift = ['0.5', '1', '1.5', '2', '2.5', '3']
+    nRedshift = bin_redshift(gBar)
+    ax[2].bar(sRedshift, nRedshift)
+    ax[2].set_title(r'Redshift (x10$^{-2}$)')
+    plt.savefig("figures/report/sample_bar.pdf")
+    plt.show()
+    plt.close()
+
+
+def plot_disk_sample():
+    sTypes = ['E', 'S0', 'Sa', 'Sb', 'Sc', 'Sd']
+    nTypes = bin_type(gDisk)
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
+    ax[0].bar(sTypes, nTypes)
+    ax[0].set_ylabel('Number')
+    ax[0].set_title('Hubble Type')
+    sMass = ['9', '9.5', '10', '10.5', '11', '11.5']
+    nMass = bin_mass(gDisk)
+    ax[1].bar(sMass, nMass)
+    ax[1].set_title(r'log(M/M$_\odot$)')
+    sRedshift = ['0.5', '1', '1.5', '2', '2.5', '3']
+    nRedshift = bin_redshift(gDisk)
+    ax[2].bar(sRedshift, nRedshift)
+    ax[2].set_title(r'Redshift (x10$^{-2}$)')
+    plt.savefig("figures/report/sample_disk.pdf")
     plt.show()
     plt.close()
 
 
 if __name__ == "__main__":
     plot_overview()
+    plot_bar_sample()
+    plot_disk_sample()
