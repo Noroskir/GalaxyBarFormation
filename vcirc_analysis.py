@@ -900,6 +900,25 @@ def check_mass():
     plt.close()
 
 
+# TEST regions
+def hist_Q_test_mean():
+    Qbar_m = ta.get_weighted_mean(Rbar, Qbar)
+    Qdisk_m = ta.get_weighted_mean(Rdisk, Qdisk)
+    res = stats.ks_2samp(Qbar_m, Qdisk_m)
+    print("\n"+"*"*20)
+    print("KS test for test mean of Q: ")
+    print(res)
+    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
+    bins = np.linspace(0, 6, 20)
+    ax.hist(Qdisk_m, bins=bins, label='No Bar', alpha=0.7)
+    ax.margins(0.05)
+    ax.hist(Qbar_m, bins=bins, label='Bar', alpha=0.7)
+    ax.legend()
+    ax.set(title='Barred and Non-Barred Galaxies', xlabel='Q')
+    plt.show()
+    plt.close()
+
+
 if __name__ == '__main__':
     n = 'NGC6278'
     # plot_error_hist()
@@ -925,7 +944,7 @@ if __name__ == '__main__':
     # hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
     # hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
     # scatter_Q_mass_mean()
-    scatter_X_mass_mean()
+    # scatter_X_mass_mean()
     # scatter_Q_sigZ_mean()
     # scatter_X_sigZ_mean()
     # scatter_Q_lambRe_mean()
@@ -936,3 +955,7 @@ if __name__ == '__main__':
     # scatter_X_e_mean()
     # scatter_Q_mass_median()
     # check_mass()
+
+    # Test
+    hist_Q_mean()
+    hist_Q_test_mean()

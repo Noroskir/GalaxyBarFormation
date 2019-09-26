@@ -5,7 +5,7 @@ import tqdm
 import subprocess
 import galaxy as g
 import photometrics as ph
-
+from scipy import integrate
 
 P = ph.Photometrics("data/photometric_decomposition.fits")
 
@@ -201,6 +201,27 @@ def get_median_mean_std(x):
         mean[i] = np.mean(x[i])
         std[i] = np.std(x[i], ddof=1)
     return median, mean, std
+
+
+def get_weighted_mean(x, y):
+    """Calculate the mean weighted by the density of data points.
+    Data points at high density weigh less then those with low density.
+    Density is calculated by the cumulative density to all other datapoints.
+    Args:
+        x (np.array): 2D array of the x values
+        y (np.array): 2D array of the y values
+    Returns:
+        float: the weighted average.
+    """
+    weights = []
+    mean = np.zeros(len(x))
+    for i in range(len(x)):
+        w = []
+        for j in range(len(x[i])):
+            w.append(np.sum(np.abs(x[i]-x[i][j])))
+        weights.append(np.array(w))
+        mean[i] = np.sum(y[i] * weights[i]) / np.sum(weights[i])
+    return mean
 
 
 def get_sigma_Z(names, R=None):

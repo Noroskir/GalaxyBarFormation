@@ -1,5 +1,7 @@
 import numpy as np
 import tool_analyze as ta
+import matplotlib.pyplot as plt
+import matplotlib.image as img
 
 # get data
 from prepare_data import *
@@ -32,11 +34,51 @@ def filter_sigZ(names, bound=(50, 100)):
     return g
 
 
+def plot_QX(nBar, nDisk):
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5), sharey=True, sharex=True)
+    for i in range(len(nDisk)):
+        ind = gDisk.index(nDisk[i])
+        ax[0].plot(Rdisk[ind], Qdisk[ind], color='red')
+        ax[0].plot(Rdisk[ind], Xdisk[ind], color='black')
+    for i in range(len(nBar)):
+        ind = gBar.index(nBar[i])
+        ax[1].plot(Rbar[ind], Qbar[ind], color='red')
+        ax[1].plot(Rbar[ind], Xbar[ind], color='black')
+    ax[0].grid()
+    ax[0].set_title('Disks')
+    ax[0].set_ylabel("Q, X")
+    ax[1].grid()
+    ax[1].set_title('Bars')
+    plt.show()
+    plt.close()
+
+
+def plot_images(nBar, nDisk):
+    """"""
+    fig, ax = plt.subplots(
+        2, max([len(nBar), len(nDisk)]), figsize=(15, 10), sharey=True)
+    ax[1][len(nDisk)].remove()
+    ax[1][len(nDisk)+1].remove()
+    fig.subplots_adjust(wspace=0, hspace=0)
+    for i in range(len(nBar)):
+        im = img.imread("figures/report/images/bars/{}.jpeg".format(nBar[i]))
+        ax[0][i].imshow(im)
+        ax[0][i].get_xaxis().set_visible(False)
+        ax[0][i].get_yaxis().set_visible(False)
+    for i in range(len(nDisk)):
+        im = img.imread("figures/report/images/disks/{}.jpeg".format(nDisk[i]))
+        ax[1][i].imshow(im)
+        ax[1][i].get_xaxis().set_visible(False)
+        ax[1][i].get_yaxis().set_visible(False)
+    plt.show()
+    plt.close()
+
+
 if __name__ == "__main__":
-    simBar = filter_Q(gBar, Qbar_mean, bound=(0.3, 1))
+    simBar = filter_Q(gBar, Qbar_mean, bound=(0.7, 1))
     simBar = filter_mass(simBar, bound=(10.5, 11))
     simBar = filter_sigZ(simBar)
-    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(0.3, 1))
+    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(0.7, 1))
     simDisk = filter_mass(simDisk, bound=(10.5, 11))
     simDisk = filter_sigZ(simDisk)
     print("Bars: ", simBar)
@@ -49,3 +91,4 @@ if __name__ == "__main__":
     print("X:", xBar)
     print("Disks: ", simDisk)
     print("X:", xDisk)
+    plot_images(simBar, simDisk)
