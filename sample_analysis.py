@@ -140,7 +140,42 @@ def plot_disk_sample():
     plt.close()
 
 
+def plot_joint_sample():
+    sTypes = ['E', 'S0', 'Sa', 'Sb', 'Sc', 'Sd']
+    nDTypes = bin_type(gDisk)
+    nBTypes = bin_type(gBar)
+    nETypes = bin_type(gElli)
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
+    ax[0].bar(sTypes, nBTypes)
+    ax[0].bar(sTypes, nDTypes, bottom=nBTypes)
+    ax[0].bar(sTypes, nETypes, bottom=nDTypes+nBTypes)
+    ax[0].set_ylabel('Number')
+    ax[0].set_title('Hubble Type')
+    sMass = ['9', '9.5', '10', '10.5', '11', '11.5']
+    nDMass = bin_mass(gDisk)
+    nBMass = bin_mass(gBar)
+    nEMass = bin_mass(gElli)
+    ax[1].bar(sMass, nBMass)
+    ax[1].bar(sMass, nDMass, bottom=nBMass)
+    ax[1].bar(sMass, nEMass, bottom=nBMass+nDMass)
+    ax[1].set_title(r'log(M/M$_\odot$)')
+    sRedshift = ['0.5', '1', '1.5', '2', '2.5', '3']
+    nDRedshift = bin_redshift(gDisk)
+    nBRedshift = bin_redshift(gBar)
+    nERedshift = bin_redshift(gElli)
+    ax[2].bar(sRedshift, nBRedshift)
+    ax[2].bar(sRedshift, nDRedshift, bottom=nBRedshift)
+    ax[2].bar(sRedshift, nERedshift, bottom=nBRedshift+nDRedshift)
+    ax[2].set_title(r'Redshift (x10$^{-2}$)')
+    ax[2].legend(['Barred', 'Non-Barred', 'Ellipticals'])
+    plt.savefig("figures/report/sample_stacked.pdf")
+    plt.show()
+    plt.close()
+
+
 if __name__ == "__main__":
     plot_overview()
     plot_bar_sample()
     plot_disk_sample()
+    plot_joint_sample()

@@ -3,6 +3,7 @@ import matplotlib.pylab as plt
 import gaussianExpansion as mge
 import montecarlo as mc
 from astropy.io import fits
+from scipy.interpolate import interp1d
 import astropy.constants as const
 import mge_vcirc
 import mge_radial_density
@@ -135,8 +136,22 @@ class Galaxy:
                 (self.distance * np.pi / (3600*180) * 1e6)  # pc
             q = self.pGaussLM[i][2]
             M = 2 * np.pi * M0 * sig**2 * q
+
             stellM.append(M)
         return sum(stellM)
+
+    def interpolate_data(self, x, y, xnew, kind='cubic'):
+        """Interpolate data at the new given x values.
+        Args:
+            x (np.array): array of x-values
+            y (np.array): array of y-values
+            xnew (np.array): new x-values
+        Returns:
+            ynew (np.array).
+        """
+        f = interp1d(x, y, kind=kind)
+        ynew = f(xnew)
+        return ynew
 
     def kappa_sq(self, R, vc):
         """Calculate the epicyclic frequency kappa^2.
@@ -202,22 +217,21 @@ class Galaxy:
         R = self.data['R']
         sigma_R = np.sqrt(self.data['vRR'])
         e_sigma_R = 0.5 / sigma_R * self.data['e_vRR']
-        vc = self.velocity_vcirc()
+        vc = self.velocity_vcirc(R)
         surfMD = self.stellar_surfMD(R)
         Q = self.toomre_param(R, vc, sigma_R, surfMD)
         eQ = Q / sigma_R * e_sigma_R
         return Q, eQ
 
-    def swing_amplif_X(self):
+    def swing_amplif_X(self, R):
         """Calculate the swing amplification parameter X profile.
         Using the modelled vcirc.
         Args:
-            None:
+            R (np.array): the radial vaules. 
         Returns:
             np.array: array of the X parameter.
         """
-        R = self.data['R']
-        vc = self.velocity_vcirc()
+        vc = self.velocity_vcirc(R)
         kappa_sq = self.kappa_sq(R, vc)
         # 1/arcsec -> 1/pc
         kappa_sq = kappa_sq / (np.pi / (180*3600) * self.distance * 1e6)
@@ -227,13 +241,13 @@ class Galaxy:
         X = R * kappa_sq * 1e6 / (4 * np.pi * const.G.value * Sigma)
         return X
 
-    def velocity_vcirc(self):
+    def velocity_vcirc(self, R):
         """Calculate the velocity profile from the MGE parameters.
         Args:
-            None
+            R (np.array): the radial values
         Returns:
-            np.array: velocity profile at the radii"""
-        R = self.data['R']
+            np.array: velocity profile at the radii.
+        """
         mbh = 0  # solar masses
         surfPot = [self.pGaussLM[i][0] *
                    self.massLight for i in range(len(self.pGaussLM))]
@@ -262,11 +276,36 @@ class Galaxy:
         """
         R = self.data['R']
         sigma_R = np.sqrt(self.data['vRR'])
-        vc = self.velocity_vcirc()
+        vc = self.velocity_vcirc(R)
         surfMD = self.stellar_surfMD(R)
         Q = self.toomre_param(R, vc, sigma_R, surfMD)
         f = open("data/toomre/"+self.name+"_Q_data.txt", 'w')
         f.write(self.name+'\t#Name\n')
+        f.write(
+            '# Radius[arcsec]\t\tQ\t\tsigmaR[km/s]\t\tvc[km/s]\t\tsurfMD[M_sun/pc^2]\n')
+        for i in range(len(R)):
+            f.write(str(R[i]) + '\t\t')
+            f.write(str(Q[i]) + '\t\t')
+            f.write(str(sigma_R[i])+'\t\t')
+            f.write(str(vc[i])+'\t\t')
+            f.write(str(surfMD[i])+'\t\t')
+            f.write('\n')
+
+    def write_toomre_interpl(self):
+        """Write thetoomre parameter Q to the file 'data/toomre/<name>_Qintpol_data.txt.
+        Args:
+            None
+        Returns:
+            None.
+        """
+        R = np.linspace(np.min(self.data['R']), np.max(self.data['R']), 300)
+        vRR = self.interpolate_data(self.data['R'], self.data['vRR'], R)
+        sigma_R = np.sqrt(vRR)
+        vc = self.velocity_vcirc(R)
+        surfMD = self.stellar_surfMD(R)
+        Q = self.toomre_param(R, vc, sigma_R, surfMD)
+        f = open("data/toomre/"+self.name+"_Qintpol_data.txt", 'w')
+        f.write('# Name: {}\n'.format(self.name))
         f.write(
             '# Radius[arcsec]\t\tQ\t\tsigmaR[km/s]\t\tvc[km/s]\t\tsurfMD[M_sun/pc^2]\n')
         for i in range(len(R)):
@@ -285,9 +324,26 @@ class Galaxy:
             None.
         """
         R = self.data['R']
-        X = self.swing_amplif_X()
+        X = self.swing_amplif_X(R)
         f = open("data/swing/"+self.name+"_X_data.txt", 'w')
         f.write(self.name+'\t#Name\n')
+        f.write('# Radius[arcsec]\t\tX\n')
+        for i in range(len(R)):
+            f.write(str(R[i])+'\t\t')
+            f.write(str(X[i]) + '\t\t')
+            f.write('\n')
+
+    def write_swing_ampli_interpl(self):
+        """Write swing amplification parameter X to file 'data/swing/<name>_X_data.txt.
+        Args:
+            None
+        Returns:
+            None.
+        """
+        R = np.linspace(np.min(self.data['R']), np.max(self.data['R']), 300)
+        X = self.swing_amplif_X(R)
+        f = open("data/swing/"+self.name+"_Xintpol_data.txt", 'w')
+        f.write('# Name: {}\n'.format(self.name))
         f.write('# Radius[arcsec]\t\tX\n')
         for i in range(len(R)):
             f.write(str(R[i])+'\t\t')
@@ -300,7 +356,10 @@ if __name__ == "__main__":
     for n in names:
         try:
             g = Galaxy(n)
-            # g.write_toomre()
+            g.write_toomre()
+            g.write_toomre_interpl()
             g.write_swing_ampli()
+            g.write_swing_ampli_interpl()
         except Exception as e:
+            print(e)
             print(n)
