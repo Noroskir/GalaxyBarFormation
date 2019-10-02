@@ -382,14 +382,9 @@ def mass_bin(R, Q, M, mbins):
     """
     Rnew = [[] for i in range(len(mbins)-1)]
     Qnew = [[] for i in range(len(mbins)-1)]
-    step = mbins[1] - mbins[0]
     for i in range(len(R)):
-        for j in range(len(mbins)):
-            if M[i] == mbins[0]:
-                Rnew[0].append(R[i])
-                Qnew[0].append(Q[i])
-                break
-            elif M[i] <= mbins[0] + j*step:
+        for j in range(1, len(mbins)):
+            if M[i] <= mbins[j]:
                 Rnew[j-1].append(R[i])
                 Qnew[j-1].append(Q[i])
                 break

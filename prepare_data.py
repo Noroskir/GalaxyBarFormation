@@ -4,6 +4,9 @@ import galaxy as g
 import photometrics as pm
 
 
+P = pm.Photometrics("data/photometric_decomposition.fits")
+
+
 def get_names():
     """Get the filtered samples names, return total, 
     barred, non-barred and ellipticals.
@@ -24,7 +27,6 @@ def get_names():
         names.remove(n)
     print('Overlap orbital and photometric decomposition:', len(names))
 
-    P = pm.Photometrics("data/photometric_decomposition.fits")
     double_galax = P.get_doubles()
 
     for n in double_galax:
@@ -57,6 +59,29 @@ def get_names():
     return names, gElli, gDisk, gBar
 
 
+def read_interpolated_data(names, extension, directory, c=1):
+    """Read the interpolated data from file. Return the first two columns.
+    Args:
+        names (list): names of the galaxy
+        extension (str): name of the file extension
+        directory (str): location of the file
+        c (int): second column, 1 == Q or X, -1 == sigZ
+    Returns:
+        2D np.arrays.
+    """
+    R = np.zeros((len(names), 300))
+    Y = np.zeros((len(names), 300))
+    for i in range(len(names)):
+        f = open(directory + names[i] + extension, 'r')
+        lines = f.readlines()
+        l = lines[2:]
+        for j in range(len(l)):
+            l[j] = l[j].split()
+            R[i][j] = l[j][0]
+            Y[i][j] = l[j][c]
+    return R, Y
+
+
 names, gElli, gDisk, gBar = get_names()
 
 #Rbar, Qbar = ta.read_vcirc_toomre("data/toomre/", gBar)
@@ -73,20 +98,6 @@ Relli, Xelli = ta.read_swing_ampl(gElli)
 Melli = ta.read_stellar_mass(gElli)
 
 
-# interpolated data for mean
-iRbar, iQbar = interpolate_data(Rbar, Qbar)
-iRbar, iXbar = interpolate_data(Rbar, Xbar)
-iRbar, iSigZbar = interpolate_data(Rbar, sigZbar)
-
-iRdisk, iQdisk = interpolate_data(Rdisk, Qdisk)
-iRdisk, iXdisk = interpolate_data(Rdisk, Xdisk)
-iRdisk, iSigZbar = interpolate_data(Rdisk, sigZdisk)
-
-iRelli, iQelli = interpolate_data(Relli, Qelli)
-iRelli, iXelli = interpolate_data(Relli, Xelli)
-iRelli, iSigZelli = interpolate_data(Relli, sigZelli)
-
-
 # cut at arcsec radius of 35
 rmax = 35  # arcsec
 tempR, Qbar = ta.filter_radius(Rbar, Qbar, rmax)
@@ -96,12 +107,12 @@ Rdisk, Xdisk = ta.filter_radius(Rdisk, Xdisk, rmax)
 tempR, Qelli = ta.filter_radius(Relli, Qelli, rmax)
 Relli, Xelli = ta.filter_radius(Relli, Xelli, rmax)
 
-
 # no filter for ellipticals needed
 tempR, Qbar = ta.filter_dom_regions(gBar, Rbar, Qbar, filt='bar')
 Rbar, Xbar = ta.filter_dom_regions(gBar, Rbar, Xbar, filt='bar')
 tempR, Qdisk = ta.filter_dom_regions(gDisk, Rdisk, Qdisk, filt='disk')
 Rdisk, Xdisk = ta.filter_dom_regions(gDisk, Rdisk, Xdisk, filt='disk')
+
 
 # before converting to effective radius
 sigZbar, e_sigZbar = ta.get_sigma_Z(gBar, Rbar)
@@ -122,14 +133,65 @@ Relli = np.array(Relli)
 
 
 # integrated quantities
-Qbar_median, Qbar_mean, Qbar_std = ta.get_median_mean_std(Qbar)
-Xbar_median, Xbar_mean, Xbar_std = ta.get_median_mean_std(Xbar)
-sigZbar_median, sigZbar_mean, sigZbar_std = ta.get_median_mean_std(sigZbar)
 
-Qdisk_median, Qdisk_mean, Qdisk_std = ta.get_median_mean_std(Qdisk)
-Xdisk_median, Xdisk_mean, Xdisk_std = ta.get_median_mean_std(Xdisk)
-sigZdisk_median, sigZdisk_mean, sigZdisk_std = ta.get_median_mean_std(sigZdisk)
+# interpolated data for mean
+iRbar, iQbar = read_interpolated_data(
+    gBar, '_Qintpol_data.txt', "data/toomre/")
+iRbar, iXbar = read_interpolated_data(gBar, '_Xintpol_data.txt', "data/swing/")
+iRbar, iSigZbar = read_interpolated_data(
+    gBar, '_Qintpol_data.txt', "data/toomre/", -1)
 
-Qelli_median, Qelli_mean, Qelli_std = ta.get_median_mean_std(Qelli)
-Xelli_median, Xelli_mean, Xelli_std = ta.get_median_mean_std(Xelli)
-sigZelli_median, sigZelli_mean, sigZelli_std = ta.get_median_mean_std(sigZelli)
+iRdisk, iQdisk = read_interpolated_data(
+    gDisk, '_Qintpol_data.txt', "data/toomre/")
+iRdisk, iXdisk = read_interpolated_data(
+    gDisk, '_Xintpol_data.txt', "data/swing/")
+iRdisk, iSigZdisk = read_interpolated_data(
+    gDisk, '_Qintpol_data.txt', "data/toomre/", -1)
+
+iRelli, iQelli = read_interpolated_data(
+    gElli, '_Qintpol_data.txt', "data/toomre/")
+iRelli, iXelli = read_interpolated_data(
+    gElli, '_Xintpol_data.txt', "data/swing/")
+iRelli, iSigZelli = read_interpolated_data(
+    gElli, '_Qintpol_data.txt', "data/toomre/", -1)
+
+
+# integrated
+tempR, iQbar = ta.filter_radius(iRbar, iQbar, rmax)
+tempR, iSigZbar = ta.filter_radius(iRbar, iSigZbar, rmax)
+iRbar, iXbar = ta.filter_radius(iRbar, iXbar, rmax)
+
+tempR, iQdisk = ta.filter_radius(iRdisk, iQdisk, rmax)
+tempR, iSigZdisk = ta.filter_radius(iRdisk, iSigZdisk, rmax)
+iRdisk, iXdisk = ta.filter_radius(iRdisk, iXdisk, rmax)
+
+tempR, iQelli = ta.filter_radius(iRelli, iQelli, rmax)
+tempR, iSigZelli = ta.filter_radius(iRelli, iSigZelli, rmax)
+iRelli, iXelli = ta.filter_radius(iRelli, iXelli, rmax)
+
+tempR, iQbar = ta.filter_dom_regions(gBar, iRbar, iQbar, filt='bar')
+tempR, iSigZbar = ta.filter_dom_regions(gBar, iRbar, iSigZbar, filt='bar')
+iRbar, iXbar = ta.filter_dom_regions(gBar, iRbar, iXbar, filt='bar')
+
+tempR, iQdisk = ta.filter_dom_regions(gDisk, iRdisk, iQdisk, filt='disk')
+tempR, iSigZdisk = ta.filter_dom_regions(gDisk, iRdisk, iSigZdisk, filt='disk')
+iRdisk, iXdisk = ta.filter_dom_regions(gDisk, iRdisk, iXdisk, filt='disk')
+
+
+iRbar = iRbar / np.array(REbar)
+iRdisk = iRdisk / np.array(REdisk)
+iRelli = iRelli / np.array(REelli)
+
+Qbar_median, Qbar_mean, Qbar_std = ta.get_median_mean_std(iQbar)
+Xbar_median, Xbar_mean, Xbar_std = ta.get_median_mean_std(iXbar)
+sigZbar_median, sigZbar_mean, sigZbar_std = ta.get_median_mean_std(iSigZbar)
+
+Qdisk_median, Qdisk_mean, Qdisk_std = ta.get_median_mean_std(iQdisk)
+Xdisk_median, Xdisk_mean, Xdisk_std = ta.get_median_mean_std(iXdisk)
+sigZdisk_median, sigZdisk_mean, sigZdisk_std = ta.get_median_mean_std(
+    iSigZdisk)
+
+Qelli_median, Qelli_mean, Qelli_std = ta.get_median_mean_std(iQelli)
+Xelli_median, Xelli_mean, Xelli_std = ta.get_median_mean_std(iXelli)
+sigZelli_median, sigZelli_mean, sigZelli_std = ta.get_median_mean_std(
+    iSigZelli)

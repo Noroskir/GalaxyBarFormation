@@ -280,7 +280,7 @@ class Galaxy:
         surfMD = self.stellar_surfMD(R)
         Q = self.toomre_param(R, vc, sigma_R, surfMD)
         f = open("data/toomre/"+self.name+"_Q_data.txt", 'w')
-        f.write(self.name+'\t#Name\n')
+        f.write('# Name: {}\n'.format(self.name))
         f.write(
             '# Radius[arcsec]\t\tQ\t\tsigmaR[km/s]\t\tvc[km/s]\t\tsurfMD[M_sun/pc^2]\n')
         for i in range(len(R)):
@@ -292,7 +292,7 @@ class Galaxy:
             f.write('\n')
 
     def write_toomre_interpl(self):
-        """Write thetoomre parameter Q to the file 'data/toomre/<name>_Qintpol_data.txt.
+        """Write the toomre parameter Q to the file 'data/toomre/<name>_Qintpol_data.txt.
         Args:
             None
         Returns:
@@ -300,6 +300,8 @@ class Galaxy:
         """
         R = np.linspace(np.min(self.data['R']), np.max(self.data['R']), 300)
         vRR = self.interpolate_data(self.data['R'], self.data['vRR'], R)
+        sigma_z = np.sqrt(self.interpolate_data(
+            self.data['R'], self.data['vzz'], R))
         sigma_R = np.sqrt(vRR)
         vc = self.velocity_vcirc(R)
         surfMD = self.stellar_surfMD(R)
@@ -307,13 +309,15 @@ class Galaxy:
         f = open("data/toomre/"+self.name+"_Qintpol_data.txt", 'w')
         f.write('# Name: {}\n'.format(self.name))
         f.write(
-            '# Radius[arcsec]\t\tQ\t\tsigmaR[km/s]\t\tvc[km/s]\t\tsurfMD[M_sun/pc^2]\n')
+            '# Radius[arcsec]\t\tQ\t\tsigmaR[km/s]\t\tvc[km/s]\t\tsurfMD[M_sun/pc^2]\t\t')
+        f.write('sigma_z[km/s]\n')
         for i in range(len(R)):
             f.write(str(R[i]) + '\t\t')
             f.write(str(Q[i]) + '\t\t')
             f.write(str(sigma_R[i])+'\t\t')
             f.write(str(vc[i])+'\t\t')
             f.write(str(surfMD[i])+'\t\t')
+            f.write(str(sigma_z[i])+'\t\t')
             f.write('\n')
 
     def write_swing_ampli(self):
@@ -326,7 +330,7 @@ class Galaxy:
         R = self.data['R']
         X = self.swing_amplif_X(R)
         f = open("data/swing/"+self.name+"_X_data.txt", 'w')
-        f.write(self.name+'\t#Name\n')
+        f.write('# Name: {}\n'.format(self.name))
         f.write('# Radius[arcsec]\t\tX\n')
         for i in range(len(R)):
             f.write(str(R[i])+'\t\t')
@@ -356,10 +360,10 @@ if __name__ == "__main__":
     for n in names:
         try:
             g = Galaxy(n)
-            g.write_toomre()
+            # g.write_toomre()
             g.write_toomre_interpl()
-            g.write_swing_ampli()
-            g.write_swing_ampli_interpl()
+            # g.write_swing_ampli()
+            # g.write_swing_ampli_interpl()
         except Exception as e:
             print(e)
             print(n)

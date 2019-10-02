@@ -439,38 +439,49 @@ def plot_X_sigZ_type():
 
 
 def stack_Q_profile_mass():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
     nbins = 5
     step = (valmax-valmin) / nbins
-    mbins = [valmin + i * step for i in range(nbins+1)]
-    RSbar, QSbar, = ta.mass_bin(Rbar, Qbar, Mbar, mbins)
-    RSdisk, QSdisk, = ta.mass_bin(Rdisk, Qdisk, Mdisk, mbins)
-    RSelli, QSelli, = ta.mass_bin(Relli, Qelli, Melli, mbins)
-    step = 0.5
+    mbins = [valmin, 10.25, 10.75, 12]
+    RSbar, QSbar, = ta.mass_bin(iRbar, iQbar, Mbar, mbins)
+    RSdisk, QSdisk, = ta.mass_bin(iRdisk, iQdisk, Mdisk, mbins)
+    RSelli, QSelli, = ta.mass_bin(iRelli, iQelli, Melli, mbins)
+    step = 0.05
+    for i in range(len(gElli)):
+        c2 = cmap((Melli[i]-valmin)/(valmax-valmin))
+        ax[0].semilogy(Relli[i], Qelli[i], 'x', color=c2, alpha=0.8)
     for i in range(len(RSelli)):
-        c = cmap((i*step+step/2)/(valmax-valmin))
-        R, Q = ta.stack_curves(RSelli[i], QSelli[i], step, threshold=1)
-        ax[0].plot(R, Q, color=c)
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
+        R, Q = ta.stack_curves(RSelli[i], QSelli[i], step, threshold=4)
+        ax[0].semilogy(R, Q, lw=2, color=c)
+    for i in range(len(gDisk)):
+        c2 = cmap((Mdisk[i]-valmin)/(valmax-valmin))
+        ax[1].semilogy(Rdisk[i], Qdisk[i], 'x', color=c2, alpha=0.8)
     for i in range(len(RSdisk)):
-        c = cmap((i*step+step/2)/(valmax-valmin))
-        R, Q = ta.stack_curves(RSdisk[i], QSdisk[i], step, threshold=1)
-        ax[1].plot(R, Q, color=c)
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
+        R, Q = ta.stack_curves(RSdisk[i], QSdisk[i], step, threshold=4)
+        ax[1].semilogy(R, Q, lw=2, color=c)
+    for i in range(len(Rbar)):
+        c2 = cmap((Mbar[i]-valmin)/(valmax-valmin))
+        ax[2].semilogy(Rbar[i], Qbar[i], 'x', color=c2, alpha=0.8)
     for i in range(len(RSbar)):
-        c = cmap((i*step+step/2)/(valmax-valmin))
+        if len(QSbar[i]) == 0:
+            print('Empty bin: {}'.format(i))
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
         R, Q = ta.stack_curves(RSbar[i], QSbar[i], step, threshold=1)
-        ax[2].plot(R, Q, color=c)
+        ax[2].semilogy(R, Q, lw=2, color=c)
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
-        # ax[i].set_xlim(0, 3.5)
-        # ax[i].set_ylim(0, 3.5)
+        ax[i].set_xlim(0, 3.45)
         ax[i].set_xlabel(r'R/R$_e$')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -478,6 +489,59 @@ def stack_Q_profile_mass():
     clb = fig.colorbar(sm, ax=ax.ravel().tolist())
     clb.set_label(r'Stellar Mass [log$_{10}($M/M$_{sun}$)]')
     plt.savefig("figures/report/stack_Q_profile_mass.pdf")
+    plt.show()
+    plt.close()
+
+
+def stack_X_profile_mass():
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
+    cmap = plt.cm.get_cmap('jet')
+    valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
+    valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
+    nbins = 5
+    step = (valmax-valmin) / nbins
+    mbins = [valmin, 10.25, 10.75, 12]
+    RSbar, XSbar, = ta.mass_bin(iRbar, iXbar, Mbar, mbins)
+    RSdisk, XSdisk, = ta.mass_bin(iRdisk, iXdisk, Mdisk, mbins)
+    RSelli, XSelli, = ta.mass_bin(iRelli, iXelli, Melli, mbins)
+    step = 0.05
+    for i in range(len(gElli)):
+        c2 = cmap((Melli[i]-valmin)/(valmax-valmin))
+        ax[0].semilogy(Relli[i], Xelli[i], 'x', color=c2, alpha=0.8)
+    for i in range(len(RSelli)):
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
+        R, X = ta.stack_curves(RSelli[i], XSelli[i], step, threshold=4)
+        ax[0].semilogy(R, X, lw=2, color=c)
+    for i in range(len(gDisk)):
+        c2 = cmap((Mdisk[i]-valmin)/(valmax-valmin))
+        ax[1].semilogy(Rdisk[i], Xdisk[i], 'x', color=c2, alpha=0.8)
+    for i in range(len(RSdisk)):
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
+        R, X = ta.stack_curves(RSdisk[i], XSdisk[i], step, threshold=4)
+        ax[1].semilogy(R, X, lw=2, color=c)
+    for i in range(len(Rbar)):
+        c2 = cmap((Mbar[i]-valmin)/(valmax-valmin))
+        ax[2].semilogy(Rbar[i], Xbar[i], 'x', color=c2, alpha=0.8)
+    for i in range(len(RSbar)):
+        c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
+        R, X = ta.stack_curves(RSbar[i], XSbar[i], step, threshold=4)
+        ax[2].semilogy(R, X, lw=2, color=c)
+    ax[0].set_title('Elliptical Galaxies')
+    ax[1].set_title('Late Type Galaxies Without Bar')
+    ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
+    for i in [0, 1, 2]:
+        ax[i].grid()
+        ax[i].set_xlim(0, 3.45)
+        ax[i].set_xlabel(r'R/R$_e$')
+    plt.suptitle('Swing Amplification Parameter X')
+    norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    clb = fig.colorbar(sm, ax=ax.ravel().tolist())
+    clb.set_label(r'Stellar Mass [log$_{10}($M/M$_{sun}$)]')
+    plt.savefig("figures/report/stack_X_profile_mass.pdf")
     plt.show()
     plt.close()
 
@@ -900,23 +964,15 @@ def check_mass():
     plt.close()
 
 
-# TEST regions
-def hist_Q_test_mean():
-    Qbar_m = ta.get_weighted_mean(Rbar, Qbar)
-    Qdisk_m = ta.get_weighted_mean(Rdisk, Qdisk)
-    res = stats.ks_2samp(Qbar_m, Qdisk_m)
-    print("\n"+"*"*20)
-    print("KS test for test mean of Q: ")
-    print(res)
-    fig, ax = plt.subplots(1, 1, figsize=(6, 5))
-    bins = np.linspace(0, 6, 20)
-    ax.hist(Qdisk_m, bins=bins, label='No Bar', alpha=0.7)
-    ax.margins(0.05)
-    ax.hist(Qbar_m, bins=bins, label='Bar', alpha=0.7)
-    ax.legend()
-    ax.set(title='Barred and Non-Barred Galaxies', xlabel='Q')
+def plot_error_mass():
+    plt.plot(Mbar, Qbar_std, 'o', color='black', label='Bar')
+    plt.plot(Mdisk, Qdisk_std, 'o', color='red', label='No Bar')
+    plt.plot(Melli, Qelli_std, 'o', color='orange', label='Elliptical')
+    plt.title('Standard deviation of Q')
+    plt.ylabel('Q')
+    plt.xlabel(r'Stellar Mass in [log(M/M$_{sun}$)]')
+    plt.legend()
     plt.show()
-    plt.close()
 
 
 if __name__ == '__main__':
@@ -937,6 +993,7 @@ if __name__ == '__main__':
     # plot_X_sigZ_mass()
     # plot_X_sigZ_type()
     stack_Q_profile_mass()
+    stack_X_profile_mass()
     hist_Q_mean()
     hist_Q_median()
     hist_X_mean()
@@ -954,8 +1011,5 @@ if __name__ == '__main__':
     scatter_Q_e_mean()
     scatter_X_e_mean()
     scatter_Q_mass_median()
-    # check_mass()
-
-    # Test
-    hist_Q_mean()
-    hist_Q_test_mean()
+    check_mass()
+    plot_error_mass()

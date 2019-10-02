@@ -57,9 +57,9 @@ def plot_images(nBar, nDisk):
     """"""
     fig, ax = plt.subplots(
         2, max([len(nBar), len(nDisk)]), figsize=(15, 10), sharey=True)
-    ax[1][len(nDisk)].remove()
-    ax[1][len(nDisk)+1].remove()
     fig.subplots_adjust(wspace=0, hspace=0)
+    ax[0][-1].remove()
+    # ax[0][-2].remove()
     for i in range(len(nBar)):
         im = img.imread("figures/report/images/bars/{}.jpeg".format(nBar[i]))
         ax[0][i].imshow(im)
@@ -75,12 +75,14 @@ def plot_images(nBar, nDisk):
 
 
 if __name__ == "__main__":
-    simBar = filter_Q(gBar, Qbar_mean, bound=(0.7, 1))
-    simBar = filter_mass(simBar, bound=(10.5, 11))
-    simBar = filter_sigZ(simBar)
-    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(0.7, 1))
-    simDisk = filter_mass(simDisk, bound=(10.5, 11))
-    simDisk = filter_sigZ(simDisk)
+    simBar = filter_Q(gBar, Qbar_mean, bound=(1.5, 2.5))
+    #simBar = filter_Q(gBar, Qbar_mean, bound=(.5, 1))
+    simBar = filter_mass(simBar, bound=(10, 10.5))
+    simBar = filter_sigZ(simBar, bound=(50, 100))
+    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(1.5, 2.5))
+    #simDisk = filter_Q(gDisk, Qdisk_mean, bound=(.5, 1))
+    simDisk = filter_mass(simDisk, bound=(10, 10.5))
+    simDisk = filter_sigZ(simDisk, bound=(50, 100))
     print("Bars: ", simBar)
     xBar = []
     for i in range(len(simBar)):
@@ -91,4 +93,5 @@ if __name__ == "__main__":
     print("X:", xBar)
     print("Disks: ", simDisk)
     print("X:", xDisk)
+    # simDisk.remove('NGC4644')
     plot_images(simBar, simDisk)
