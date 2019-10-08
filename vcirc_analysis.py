@@ -3,7 +3,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tool_analyze as ta
 import galaxy as g
-import photometrics as pm
 from scipy import stats
 
 # get the data
@@ -127,7 +126,8 @@ def plot_SMD_profile(name):
 
 
 def plot_Q_total_mass():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -143,12 +143,11 @@ def plot_Q_total_mass():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(-.1, 3.8)
-        ax[i].set_ylim(0.2, 120)
         ax[i].set_xlabel(r'R/R$_e$')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -161,7 +160,8 @@ def plot_Q_total_mass():
 
 
 def plot_X_total_mass():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -177,12 +177,11 @@ def plot_X_total_mass():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(-.1, 3.8)
-        ax[i].set_ylim(.04, 150)
         ax[i].set_xlabel(r'R/R$_e$')
-        ax[i].set_ylabel(r'X')
     plt.suptitle('Swing Amplification Parameter X')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -200,7 +199,8 @@ def plot_Q_total_type():
     types = ['E', '0', 'a', 'b', 'c', 'd']
     cmap = plt.cm.get_cmap('jet_r')
     valmax = len(types)
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     for i in range(len(Relli)):
         c = cmap(0)
         ax[0].semilogy(Relli[i], Qelli[i], 'x', color=c)
@@ -219,12 +219,11 @@ def plot_Q_total_type():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(-.1, 3.8)
-        ax[i].set_ylim(.2, 120)
         ax[i].set_xlabel(r'R/R$_e$')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q')
     norm = mpl.colors.Normalize(vmin=0, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -244,7 +243,8 @@ def plot_X_total_type():
     types = ['E', '0', 'a', 'b', 'c', 'd']
     cmap = plt.cm.get_cmap('jet_r')
     valmax = len(types)
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     for i in range(len(Relli)):
         c = cmap(0)
         ax[0].semilogy(Relli[i], Xelli[i], 'x', color=c)
@@ -263,12 +263,11 @@ def plot_X_total_type():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(-.1, 3.5)
-        ax[i].set_ylim(0.04, 150)
         ax[i].set_xlabel(r'R/R$_e$')
-        ax[i].set_ylabel(r'X')
     plt.suptitle('Swing Amplification Parameter X')
     norm = mpl.colors.Normalize(vmin=0, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -283,7 +282,8 @@ def plot_X_total_type():
 
 
 def plot_Q_sigZ_mass():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -299,12 +299,11 @@ def plot_Q_sigZ_mass():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(5, 380)
-        ax[i].set_ylim(0.2, 120)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -322,7 +321,8 @@ def plot_Q_sigZ_type():
     types = ['E', '0', 'a', 'b', 'c', 'd']
     cmap = plt.cm.get_cmap('jet_r')
     valmax = len(types)
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     for i in range(len(Relli)):
         c = cmap(0)
         ax[0].semilogy(sigZelli[i], Qelli[i], 'x', color=c)
@@ -341,12 +341,11 @@ def plot_Q_sigZ_type():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(5, 380)
-        ax[i].set_ylim(0.2, 120)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'Q')
     plt.suptitle('Toomre Parameter Q')
     norm = mpl.colors.Normalize(vmin=0, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -361,7 +360,8 @@ def plot_Q_sigZ_type():
 
 
 def plot_X_sigZ_mass():
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     cmap = plt.cm.get_cmap('jet')
     valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
     valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
@@ -377,12 +377,11 @@ def plot_X_sigZ_mass():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(5, 380)
-        ax[i].set_ylim(0.04, 150)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'X')
     plt.suptitle('Swing Amplification Parameter X')
     norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -400,7 +399,8 @@ def plot_X_sigZ_type():
     types = ['E', '0', 'a', 'b', 'c', 'd']
     cmap = plt.cm.get_cmap('jet_r')
     valmax = len(types)
-    fig, ax = plt.subplots(1, 3, figsize=(18, 5))
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+    fig.subplots_adjust(wspace=0)
     for i in range(len(Relli)):
         c = cmap(0)
         ax[0].semilogy(sigZelli[i], Xelli[i], 'x', color=c)
@@ -419,12 +419,11 @@ def plot_X_sigZ_type():
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'X')
     for i in [0, 1, 2]:
         ax[i].grid()
         ax[i].set_xlim(5, 380)
-        ax[i].set_ylim(0.04, 150)
         ax[i].set_xlabel(r'$\sigma_z$ [km/s]')
-        ax[i].set_ylabel(r'X')
     plt.suptitle('Swing Amplification Parameter X')
     norm = mpl.colors.Normalize(vmin=0, vmax=valmax)
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
@@ -755,10 +754,21 @@ def scatter_Q_sigZ_mean():
         ax[0].semilogy(sigZelli_mean[i], Qelli_mean[i], 'o', color=c)
     for i in range(len(gDisk)):
         c = cmap((Mdisk[i]-valmin)/(valmax-valmin))
-        ax[1].semilogy(sigZdisk_mean[i], Qdisk_mean[i], 'o', color=c)
+        symb = 'o'
+        ms = 4
+        if barredness[gDisk[i]] == 'SA':
+            symb = '*'
+            ms = 8
+        ax[1].semilogy(sigZdisk_mean[i], Qdisk_mean[i],
+                       symb, ms=ms, color=c)
     for i in range(len(gBar)):
         c = cmap((Mbar[i]-valmin)/(valmax-valmin))
-        ax[2].semilogy(sigZbar_mean[i], Qbar_mean[i], 'o', color=c)
+        symb = 'o'
+        ms = 4
+        if barredness[gBar[i]] == 'SB':
+            symb = '*'
+            ms = 8
+        ax[2].semilogy(sigZbar_mean[i], Qbar_mean[i], symb, ms=ms, color=c)
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
     ax[2].set_title('Late Type Galaxies With Bar')
@@ -992,16 +1002,16 @@ if __name__ == '__main__':
     # plot_Q_sigZ_type()
     # plot_X_sigZ_mass()
     # plot_X_sigZ_type()
-    stack_Q_profile_mass()
-    stack_X_profile_mass()
-    hist_Q_mean()
-    hist_Q_median()
-    hist_X_mean()
-    hist_X_median()
-    hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
-    hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
-    scatter_Q_mass_mean()
-    scatter_X_mass_mean()
+    # stack_Q_profile_mass()
+    # stack_X_profile_mass()
+    # hist_Q_mean()
+    # hist_Q_median()
+    # hist_X_mean()
+    # hist_X_median()
+    # hist_Q_types_mean(['Sa', 'Sab', 'Sb'], 'Sa Sab Sb')
+    # hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
+    # scatter_Q_mass_mean()
+    # scatter_X_mass_mean()
     scatter_Q_sigZ_mean()
     scatter_X_sigZ_mean()
     scatter_Q_lambRe_mean()

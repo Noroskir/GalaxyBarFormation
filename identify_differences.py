@@ -75,23 +75,37 @@ def plot_images(nBar, nDisk):
 
 
 if __name__ == "__main__":
-    simBar = filter_Q(gBar, Qbar_mean, bound=(1.5, 2.5))
-    #simBar = filter_Q(gBar, Qbar_mean, bound=(.5, 1))
-    simBar = filter_mass(simBar, bound=(10, 10.5))
-    simBar = filter_sigZ(simBar, bound=(50, 100))
-    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(1.5, 2.5))
-    #simDisk = filter_Q(gDisk, Qdisk_mean, bound=(.5, 1))
-    simDisk = filter_mass(simDisk, bound=(10, 10.5))
-    simDisk = filter_sigZ(simDisk, bound=(50, 100))
-    print("Bars: ", simBar)
-    xBar = []
-    for i in range(len(simBar)):
-        xBar.append(Xbar_mean[gBar.index(simBar[i])])
-    xDisk = []
-    for i in range(len(simDisk)):
-        xDisk.append(Xdisk_mean[gDisk.index(simDisk[i])])
-    print("X:", xBar)
-    print("Disks: ", simDisk)
-    print("X:", xDisk)
-    # simDisk.remove('NGC4644')
-    plot_images(simBar, simDisk)
+    # TODO: remove after investigation
+    # BEGIN INVESTIGATION
+    simBar = filter_Q(gBar, Qbar_mean, bound=(10, 100))
+    simBar = filter_mass(simBar, bound=(1, 100))
+    simBar = filter_sigZ(simBar, bound=(1, 1000))
+    print('Mean Q over 10 (BAR): ')
+    print(simBar)
+    simDisk = filter_Q(gDisk, Qdisk_mean, bound=(10, 100))
+    simDisk = filter_mass(simDisk, bound=(1, 100))
+    simDisk = filter_sigZ(simDisk, bound=(1, 1000))
+    print('Mean Q over 10 (Disk):')
+    print(simDisk)
+    # END INVESTIGATION
+
+    # simBar = filter_Q(gBar, Qbar_mean, bound=(1.5, 2.5))
+    # #simBar = filter_Q(gBar, Qbar_mean, bound=(.5, 1))
+    # simBar = filter_mass(simBar, bound=(10, 10.5))
+    # simBar = filter_sigZ(simBar, bound=(50, 100))
+    # simDisk = filter_Q(gDisk, Qdisk_mean, bound=(1.5, 2.5))
+    # #simDisk = filter_Q(gDisk, Qdisk_mean, bound=(.5, 1))
+    # simDisk = filter_mass(simDisk, bound=(10, 10.5))
+    # simDisk = filter_sigZ(simDisk, bound=(50, 100))
+    # print("Bars: ", simBar)
+    # xBar = []
+    # for i in range(len(simBar)):
+    #     xBar.append(Xbar_mean[gBar.index(simBar[i])])
+    # xDisk = []
+    # for i in range(len(simDisk)):
+    #     xDisk.append(Xdisk_mean[gDisk.index(simDisk[i])])
+    # print("X:", xBar)
+    # print("Disks: ", simDisk)
+    # print("X:", xDisk)
+    # # simDisk.remove('NGC4644')
+    # plot_images(simBar, simDisk)

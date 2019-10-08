@@ -354,16 +354,36 @@ class Galaxy:
             f.write(str(X[i]) + '\t\t')
             f.write('\n')
 
+    def plot_profiles(self):
+        """Plot profiles"""
+        fig, ax = plt.subplots(2, 2)
+        R = self.data['R']
+        Q, eQ = self.get_toomre()
+        X = self.swing_amplif_X(R)
+        ax[1][1].plot(R, Q, label='Q')
+        ax[1][1].errorbar(R, Q, yerr=eQ, fmt='-')
+        ax[1][1].plot(R, X, label='X')
+        ax[1][1].grid()
+        ax[1][1].legend()
+        ax[0][0].plot(R, self.stellar_surfMD(R), label='Stellar Matter')
+        ax[0][0].plot(R, self.darkmatter_surfMD(R), label='Dark Matter')
+        ax[0][0].legend()
+        ax[0][0].grid()
+        ax[0][1].plot(R, self.velocity_vcirc(R))
+        ax[0][1].grid()
+        plt.show()
+        plt.close()
+
 
 if __name__ == "__main__":
     names = ta.read_filenames("data/massmge/", "_mass_mge.txt")
-    for n in names:
-        try:
-            g = Galaxy(n)
-            # g.write_toomre()
-            g.write_toomre_interpl()
-            # g.write_swing_ampli()
-            # g.write_swing_ampli_interpl()
-        except Exception as e:
-            print(e)
-            print(n)
+    # for n in names:
+    #     try:
+    #         g = Galaxy(n)
+    #         # g.write_toomre()
+    #         g.write_toomre_interpl()
+    #         # g.write_swing_ampli()
+    #         # g.write_swing_ampli_interpl()
+    #     except Exception as e:
+    #         print(e)
+    #         print(n)

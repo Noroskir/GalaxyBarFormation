@@ -7,7 +7,7 @@ import galaxy as g
 import photometrics as ph
 from scipy import integrate
 
-P = ph.Photometrics("data/photometric_decomposition.fits")
+P = ph.Photometrics("data/cut_photometrics.fits")
 
 
 def read_master_file(filename):
@@ -283,7 +283,7 @@ def get_redshift(names):
         list: list with redshifts."""
     redshift = np.zeros(len(names))
     for i in range(len(names)):
-        z = P.data['REDSHIFT'][0][P.index[names[i]]]
+        z = P.data['REDSHIFT'][P.index[names[i]]]
         redshift[i] = z
     return redshift
 

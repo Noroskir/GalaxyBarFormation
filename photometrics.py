@@ -13,8 +13,8 @@ class Photometrics:
             HDUList."""
         self.hdul = fits.open(filename)
         self.data = self.hdul[1].data
-        l = len(self.data['GALAXY'][0])
-        self.index = {self.data['GALAXY'][0][i]: i for i in range(l)}
+        l = len(self.data['GALAXY'])
+        self.index = {self.data['GALAXY'][i]: i for i in range(l)}
 
     def get_param(self, name, param, band='R'):
         """Get a parameter for a specific galaxy.
@@ -24,7 +24,7 @@ class Photometrics:
         Returns:
             float: value of the parameter.
         """
-        p = self.data[param+'_'+band][0][self.index[name]]
+        p = self.data[param+'_'+band][self.index[name]]
         return p
 
     def is_barred(self, names):
@@ -37,10 +37,10 @@ class Photometrics:
         if type(names) == list:
             barred = []
             for n in names:
-                barred.append(self.data['BAR'][0][self.index[n]])
+                barred.append(self.data['BAR'][self.index[n]])
             return barred
         elif type(names) == str:
-            return self.data['BAR'][0][self.index[names]]
+            return self.data['BAR'][self.index[names]]
 
     def is_disked(self, names):
         """Check if galaxies have a disk or not.
@@ -52,10 +52,10 @@ class Photometrics:
         if type(names) == list:
             barred = []
             for n in names:
-                barred.append(self.data['DISK'][0][self.index[n]])
+                barred.append(self.data['DISK'][self.index[n]])
             return barred
         elif type(names) == str:
-            return self.data['DISK'][0][self.index[names]]
+            return self.data['DISK'][self.index[names]]
 
     def is_bulged(self, names):
         """Check if galaxies have bulge component or not.
@@ -67,10 +67,10 @@ class Photometrics:
         if type(names) == list:
             bulged = []
             for n in names:
-                bulged.append(self.data['BULGE'][0][self.index[n]])
+                bulged.append(self.data['BULGE'][self.index[n]])
             return bulged
         elif type(names) == str:
-            return self.data['BULGE'][0][self.index[names]]
+            return self.data['BULGE'][self.index[names]]
 
     def bar_dominating(self, name, band='R'):
         """Calculate the radius at which the bar dominates
@@ -80,12 +80,12 @@ class Photometrics:
         Returns:
             float: radius in arcsec
         """
-        if self.data["BULGE"][0][self.index[name]] == False:
+        if self.data["BULGE"][self.index[name]] == False:
             return 0
         sersic = self.get_sersic(name, band)
         ferres = self.get_ferres(name, band)
         try:
-            rbar = self.data['RBAR_'+band][0][self.index[name]]
+            rbar = self.data['RBAR_'+band][self.index[name]]
             rcrit = self.estimate_crossing(
                 sersic, ferres, steps=0.01, end=rbar)
             if rcrit == -1:
@@ -107,7 +107,7 @@ class Photometrics:
             band (str): SDSS band
         Returns:
             float: radius"""
-        if self.data["BULGE"][0][self.index[name]] == False:
+        if self.data["BULGE"][self.index[name]] == False:
             return 0
         sersic = self.get_sersic(name, band)
         disk = self.get_disk(name, band)
@@ -134,10 +134,10 @@ class Photometrics:
         Returns:
             function: the Sersic function."""
         Mser = self.data['MUE_' +
-                         band][0][self.index[name]]  # effective surface brightness
+                         band][self.index[name]]  # effective surface brightness
         Iser = np.power(10, -0.4 * Mser)  # in L0 luminosity
-        Reser = self.data['RE_'+band][0][self.index[name]]  # effective radius
-        nser = self.data['N_'+band][0][self.index[name]]
+        Reser = self.data['RE_'+band][self.index[name]]  # effective radius
+        nser = self.data['N_'+band][self.index[name]]
         bser = 0.868 * nser - 0.142
         return lambda x: Iser * np.power(10, (-bser*(np.power((x/Reser), (1/nser)) - 1)))
 
@@ -148,12 +148,12 @@ class Photometrics:
             band (str): SDSS band
         Returns:
             function: the Ferres function."""
-        if not self.is_barred([name])[0]:
+        if not self.is_barred([name]):
             raise Exception("Galaxy has no bar!")
-        Mbar = self.data['MU0B_'+band][0][self.index[name]]
+        Mbar = self.data['MU0B_'+band][self.index[name]]
         Ibar = np.power(10, - 0.4 * Mbar)
-        nbar = self.data['NBAR_'+band][0][self.index[name]]
-        rbar = self.data['RBAR_'+band][0][self.index[name]]
+        nbar = self.data['NBAR_'+band][self.index[name]]
+        rbar = self.data['RBAR_'+band][self.index[name]]
         return lambda x: Ibar * np.power((1 - (x / rbar)**2), (nbar+0.5))
 
     def get_disk(self, name, band):
@@ -163,12 +163,12 @@ class Photometrics:
             band (str): SDSS band
         Returns:
             function: the disk luminosity function."""
-        M = self.data['MU0_'+band][0][self.index[name]]
+        M = self.data['MU0_'+band][self.index[name]]
         I = np.power(10, -0.4 * M)
-        h = self.data['HI_'+band][0][self.index[name]]
-        ho = self.data['HO_'+band][0][self.index[name]]
-        rbreak = self.data['RBREAK_'+band][0][self.index[name]]
-        if self.data["DBREAK"][0][self.index[name]] == False:
+        h = self.data['HI_'+band][self.index[name]]
+        ho = self.data['HO_'+band][self.index[name]]
+        rbreak = self.data['RBREAK_'+band][self.index[name]]
+        if self.data["DBREAK"][self.index[name]] == False:
             rbreak = 999
 
         def f1(x): return np.exp(-x/h)*np.heaviside(-x+rbreak, 0)
@@ -184,7 +184,7 @@ class Photometrics:
         """
         redshift = []
         for n in names:
-            z = self.data["REDSHIFT"][0][self.index[n]]
+            z = self.data["REDSHIFT"][self.index[n]]
             redshift.append(z)
         return redshift
 
@@ -229,13 +229,20 @@ class Photometrics:
             if self.is_bulged(name):
                 sersic = self.get_sersic(name, band)
                 plt.plot(xx, -2.5*np.log10(sersic(xx)), label='Bulge')
-        elif self.data["BULGE"][0][self.index[name]]:
+        elif self.data["BULGE"][self.index[name]]:
             sersic = self.get_sersic(name, band)
             plt.plot(xx, -2.5*np.log10(sersic(xx)), label='Bulge')
             r0 = self.disk_dominating(name)
             # plt.plot(r0, -2.5*np.log10(sersic(r0)), 'o')
             # plt.plot(r0, -2.5*np.log10(disk(r0)), 'o')
         plt.plot(xx, -2.5*np.log10(disk(xx)), label='Disk')
+        rbar = self.data['RBAR_'+band][self.index[name]]
+        xx = np.linspace(0, rbar)
+        # plt.plot(xx, -2.5*np.log10(sersic(xx)
+        #                            + ferres(xx)+disk(xx)), '--', label='Total', color='red', lw=2)
+        xx = np.linspace(rbar, 50)
+        plt.plot(xx, -2.5*np.log10(sersic(xx)+disk(xx)),
+                 '--', color='red', lw=2)
         plt.title(r'Photometric components of galaxy ' + name)
         plt.ylabel(r'$\mu_r$ (mag/acrsec$^2$)')
         plt.xlabel(r'R [arcsec]')
@@ -252,7 +259,7 @@ class Photometrics:
         Returns:
             names (list).
         """
-        galax = self.data['GALAXY'][0]
+        galax = self.data['GALAXY']
         g = []
         abundance = []
         doubles = []
@@ -267,10 +274,10 @@ class Photometrics:
 
 
 if __name__ == "__main__":
-    p = Photometrics("data/photometric_decomposition.fits")
+    p = Photometrics("data/cut_photometrics.fits")
     # print(p.is_barred(["NGC4210", "NGC6278"]))
     # print(p.is_disked(["NGC4210", "NGC6278"]))
-    p.plot_profile("NGC6278")
+    p.plot_profile("NGC6173")
     # g = 'NGC4210'
     # p.plot_profile(g)
     # print(p.bar_dominating(g))

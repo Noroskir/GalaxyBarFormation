@@ -4,7 +4,36 @@ import galaxy as g
 import photometrics as pm
 
 
-P = pm.Photometrics("data/photometric_decomposition.fits")
+P = pm.Photometrics("data/cut_photometrics.fits")
+
+
+def get_barredness(names):
+    """Get the bar classification of the galaxies 'E', 'SA', 'SB' or 'SAB'.
+    Args: 
+        names (list): names of the galaxies
+    Returns:
+        list, list: filtered names and classification.
+    """
+    f = open("data/sample/skynavigate.txt", 'r')
+    lines = f.readlines()
+    bar = dict()
+    for l in lines:
+        l = l.split(',')
+        bar[l[0]] = l[-1]
+    f.close()
+    rnames = []
+    barredness = dict()
+    for n in names:
+        b = bar[n].split()
+        if len(b) > 1:
+            b.remove('-')
+            if b[-1] == 'Elliptical_phot':
+                rnames.append(n)
+                barredness[n] = b[0]
+        else:
+            rnames.append(n)
+            barredness[n] = bar[n].split()[0]
+    return rnames, barredness
 
 
 def get_names():
@@ -27,15 +56,17 @@ def get_names():
         names.remove(n)
     print('Overlap orbital and photometric decomposition:', len(names))
 
-    double_galax = P.get_doubles()
-
-    for n in double_galax:
-        try:
-            names.remove(n)
-        except:
-            # print(n)
-            pass
-    print("Excluding ambiguous photometric components:", len(names))
+    # keep doubles
+    # double_galax = P.get_doubles()
+    # print('Double Galaxies: ')
+    # print(double_galax)
+    # for n in double_galax:
+    #     try:
+    #         names.remove(n)
+    #     except:
+    #         # print(n)
+    #         pass
+    # print("Excluding ambiguous photometric components:", len(names))
     # not in master file
     not_there = ['IC2402', 'LSBCF560-04',
                  'MCG-02-02-086', 'NGC2484', 'IC2378', 'NGC0647']
@@ -49,6 +80,9 @@ def get_names():
     not_there = ['NGC0171', 'NGC3381', 'NGC5631']
     for n in not_there:
         names.remove(n)
+
+    names, barredness = get_barredness(names)
+
     print("Vcirc modelling cut:", len(names))
     gBar = ta.get_barred_galaxies(names)
     print("Barred Galaxies:", len(gBar))
@@ -56,7 +90,8 @@ def get_names():
     print("Non Barred Galaxies:", len(gDisk))
     gElli = ta.get_elliptical_galaxies(names)
     print("Ellipticals:", len(gElli))
-    return names, gElli, gDisk, gBar
+
+    return names, gElli, gDisk, gBar, barredness
 
 
 def read_interpolated_data(names, extension, directory, c=1):
@@ -82,7 +117,7 @@ def read_interpolated_data(names, extension, directory, c=1):
     return R, Y
 
 
-names, gElli, gDisk, gBar = get_names()
+names, gElli, gDisk, gBar, barredness = get_names()
 
 #Rbar, Qbar = ta.read_vcirc_toomre("data/toomre/", gBar)
 Rbar, Qbar = ta.read_toomre("data/toomre/", gBar)
@@ -155,7 +190,6 @@ iRelli, iXelli = read_interpolated_data(
 iRelli, iSigZelli = read_interpolated_data(
     gElli, '_Qintpol_data.txt', "data/toomre/", -1)
 
-
 # integrated
 tempR, iQbar = ta.filter_radius(iRbar, iQbar, rmax)
 tempR, iSigZbar = ta.filter_radius(iRbar, iSigZbar, rmax)
@@ -177,10 +211,10 @@ tempR, iQdisk = ta.filter_dom_regions(gDisk, iRdisk, iQdisk, filt='disk')
 tempR, iSigZdisk = ta.filter_dom_regions(gDisk, iRdisk, iSigZdisk, filt='disk')
 iRdisk, iXdisk = ta.filter_dom_regions(gDisk, iRdisk, iXdisk, filt='disk')
 
-
 iRbar = iRbar / np.array(REbar)
 iRdisk = iRdisk / np.array(REdisk)
 iRelli = iRelli / np.array(REelli)
+
 
 Qbar_median, Qbar_mean, Qbar_std = ta.get_median_mean_std(iQbar)
 Xbar_median, Xbar_mean, Xbar_std = ta.get_median_mean_std(iXbar)
