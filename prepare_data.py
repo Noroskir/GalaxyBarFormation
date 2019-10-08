@@ -67,21 +67,23 @@ def get_names():
     #         # print(n)
     #         pass
     # print("Excluding ambiguous photometric components:", len(names))
-    # not in master file
-    not_there = ['IC2402', 'LSBCF560-04',
-                 'MCG-02-02-086', 'NGC2484', 'IC2378', 'NGC0647']
+    # no Lambda_RE
+    not_there = ['LSBCF560-04', 'IC2378',
+                 'MCG-02-02-086', 'IC2402', 'NGC0647', 'NGC2484']
     for n in not_there:
         try:
             names.remove(n)
         except:
             pass
     print("No Hubble Type classification", len(names))
+
     # because inclination angle to low for deprojection for vcirc modelling
     not_there = ['NGC0171', 'NGC3381', 'NGC5631']
     for n in not_there:
         names.remove(n)
 
     names, barredness = get_barredness(names)
+    print('Cut due to poor kinematic maps, irregulars,..', len(names))
 
     print("Vcirc modelling cut:", len(names))
     gBar = ta.get_barred_galaxies(names)
@@ -117,21 +119,32 @@ def read_interpolated_data(names, extension, directory, c=1):
     return R, Y
 
 
+def get_mass_fraction(names):
+    frac = np.zeros(len(names))
+    for i in range(len(names)):
+        G = g.Galaxy(names[i])
+        lm = G.get_stellar_mass()
+        dm = G.get_dark_matter()
+        frac[i] = lm/dm
+    return frac
+
+
 names, gElli, gDisk, gBar, barredness = get_names()
 
-#Rbar, Qbar = ta.read_vcirc_toomre("data/toomre/", gBar)
 Rbar, Qbar = ta.read_toomre("data/toomre/", gBar)
 Rbar, Xbar = ta.read_swing_ampl(gBar)
 Mbar = ta.read_stellar_mass(gBar)
-#Rdisk, Qdisk = ta.read_vcirc_toomre("data/toomre/", gDisk)
 Rdisk, Qdisk = ta.read_toomre("data/toomre/", gDisk)
 Rdisk, Xdisk = ta.read_swing_ampl(gDisk)
 Mdisk = ta.read_stellar_mass(gDisk)
-#Relli, Qelli = ta.read_vcirc_toomre("data/toomre/", gElli)
 Relli, Qelli = ta.read_toomre("data/toomre/", gElli)
 Relli, Xelli = ta.read_swing_ampl(gElli)
 Melli = ta.read_stellar_mass(gElli)
 
+# stellar/dark matter mass fraction
+fracBar = get_mass_fraction(gBar)
+fracDisk = get_mass_fraction(gDisk)
+fracElli = get_mass_fraction(gElli)
 
 # cut at arcsec radius of 35
 rmax = 35  # arcsec
@@ -210,6 +223,7 @@ iRbar, iXbar = ta.filter_dom_regions(gBar, iRbar, iXbar, filt='bar')
 tempR, iQdisk = ta.filter_dom_regions(gDisk, iRdisk, iQdisk, filt='disk')
 tempR, iSigZdisk = ta.filter_dom_regions(gDisk, iRdisk, iSigZdisk, filt='disk')
 iRdisk, iXdisk = ta.filter_dom_regions(gDisk, iRdisk, iXdisk, filt='disk')
+
 
 iRbar = iRbar / np.array(REbar)
 iRdisk = iRdisk / np.array(REdisk)

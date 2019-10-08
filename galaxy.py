@@ -136,9 +136,25 @@ class Galaxy:
                 (self.distance * np.pi / (3600*180) * 1e6)  # pc
             q = self.pGaussLM[i][2]
             M = 2 * np.pi * M0 * sig**2 * q
-
             stellM.append(M)
         return sum(stellM)
+
+    def get_dark_matter(self):
+        """Calculate the dark matter from the MGE expansion.
+        Args:
+            None
+        Returns:
+            float: dark matter in solar masses.
+        """
+        darkM = np.zeros(len(self.pGaussDM))
+        for i in range(len(self.pGaussDM)):
+            M0 = self.pGaussDM[i][0]  # M_sun/pc^2
+            sig = self.pGaussDM[i][1] * \
+                (self.distance*np.pi/(3600*180)*1e6)  # pc
+            q = self.pGaussDM[i][2]
+            M = 2 * np.pi * M0 * sig**2 * q
+            darkM[i] = M
+        return np.sum(darkM)
 
     def interpolate_data(self, x, y, xnew, kind='cubic'):
         """Interpolate data at the new given x values.
@@ -222,6 +238,25 @@ class Galaxy:
         Q = self.toomre_param(R, vc, sigma_R, surfMD)
         eQ = Q / sigma_R * e_sigma_R
         return Q, eQ
+
+    def lambda_crit(self, R):
+        """Calculate the critical wavelength at the given radii. 
+        Args:
+            R (np.array): the radial values
+        Returns:
+            np.array: array of the lambda_crit parameter.
+        """
+        vc = self.velocity_vcirc(R)
+        kappa_sq = self.kappa_sq(R, vc)
+        Sigma = self.massLight * self.mge_LM(R, np.zeros(len(R)))
+
+        # unit conversions:
+        Sigma = Sigma * const.M_sun.value
+        kappa_sq = kappa_sq * 1e6 / (np.pi/(180*3600) * self.distance*1e6)**2
+        # calculation of lambda
+        lambda_crit = 4 * np.pi**2 * const.G.value * Sigma / kappa_sq
+        lambda_crit = lambda_crit / const.kpc.value
+        return lambda_crit
 
     def swing_amplif_X(self, R):
         """Calculate the swing amplification parameter X profile.
@@ -329,12 +364,14 @@ class Galaxy:
         """
         R = self.data['R']
         X = self.swing_amplif_X(R)
+        lambda_crit = self.lambda_crit(R)
         f = open("data/swing/"+self.name+"_X_data.txt", 'w')
         f.write('# Name: {}\n'.format(self.name))
-        f.write('# Radius[arcsec]\t\tX\n')
+        f.write('# Radius[arcsec]\t\tX\t\tLamda_crit\n')
         for i in range(len(R)):
             f.write(str(R[i])+'\t\t')
             f.write(str(X[i]) + '\t\t')
+            f.write("{:.5f}\t\t".format(lambda_crit[i]))
             f.write('\n')
 
     def write_swing_ampli_interpl(self):
@@ -346,44 +383,78 @@ class Galaxy:
         """
         R = np.linspace(np.min(self.data['R']), np.max(self.data['R']), 300)
         X = self.swing_amplif_X(R)
+        lambda_crit = self.lambda_crit(R)
         f = open("data/swing/"+self.name+"_Xintpol_data.txt", 'w')
         f.write('# Name: {}\n'.format(self.name))
-        f.write('# Radius[arcsec]\t\tX\n')
+        f.write('# Radius[arcsec]\t\tX\t\tLambda_crit\n')
         for i in range(len(R)):
             f.write(str(R[i])+'\t\t')
             f.write(str(X[i]) + '\t\t')
+            f.write("{:.5f}\t\t".format(lambda_crit[i]))
             f.write('\n')
 
-    def plot_profiles(self):
+    def plot_profiles(self, save=False, show=True):
         """Plot profiles"""
-        fig, ax = plt.subplots(2, 2)
+        fig, ax = plt.subplots(2, 2, figsize=(13, 10))
         R = self.data['R']
         Q, eQ = self.get_toomre()
         X = self.swing_amplif_X(R)
-        ax[1][1].plot(R, Q, label='Q')
-        ax[1][1].errorbar(R, Q, yerr=eQ, fmt='-')
-        ax[1][1].plot(R, X, label='X')
+        sigR = np.sqrt(self.data['vRR'])
+        sigZ = np.sqrt(self.data['vzz'])
+        vc = self.velocity_vcirc(R)
+        lambda_crit = self.lambda_crit(R)
+        ax[1][1].plot(R, Q, label='Q', color='red')
+        ax[1][1].errorbar(R, Q, yerr=eQ, fmt='none', capsize=2, color='red')
+        ax[1][1].plot(R, X, label='X', color='black')
         ax[1][1].grid()
         ax[1][1].legend()
-        ax[0][0].plot(R, self.stellar_surfMD(R), label='Stellar Matter')
-        ax[0][0].plot(R, self.darkmatter_surfMD(R), label='Dark Matter')
+        ax[1][1].set_title('Q and X')
+        ax[0][0].semilogy(R, self.stellar_surfMD(R), '--',
+                          label='Stellar Matter', color='blue')
+        ax[0][0].semilogy(R, self.darkmatter_surfMD(R), '--',
+                          label='Dark Matter', color='black')
+        ax[0][0].semilogy(R, self.darkmatter_surfMD(
+            R) + self.stellar_surfMD(R), label='Total Matter', color='red')
+        ax[0][0].set_title('Surface Mass Density')
+        ax[0][0].set_ylabel(r'$\Sigma$ in [M$_{Sun}$pc$^{-2}$]')
         ax[0][0].legend()
         ax[0][0].grid()
-        ax[0][1].plot(R, self.velocity_vcirc(R))
+        ax[0][1].plot(R, vc, label=r'$V_{circ}$')
+        ax[0][1].plot(R, sigR, label=r'$\sigma_R$')
+        ax[0][1].plot(R, sigZ, label=r'$\sigma_z$')
+        ax[0][1].set_ylabel(r'$V_{circ}$ and $\sigma_R$ in [km/s]')
+        ax[0][1].set_title(r'$V_{circ}$ and $\sigma_R$')
+        ax[0][1].legend()
         ax[0][1].grid()
-        plt.show()
+
+        ax[1][0].plot(R, lambda_crit)
+        ax[1][0].grid()
+        ax[1][0].set_ylabel(r'$\lambda_{crit}$ in [pc]')
+        ax[1][0].set_title(r'Longest Unstable Wavelength $\lambda_{crit}$')
+
+        for i in range(2):
+            for j in range(2):
+                ax[i][j].set_xlabel(r'R in [arcsec]')
+        if save:
+            plt.savefig('figures/profiles/{}_profiles.pdf'.format(self.name))
+        if show:
+            plt.show()
         plt.close()
 
 
 if __name__ == "__main__":
+    n = 'NGC6278'
+    # g = Galaxy(n)
+    # g.plot_profiles()
     names = ta.read_filenames("data/massmge/", "_mass_mge.txt")
-    # for n in names:
-    #     try:
-    #         g = Galaxy(n)
-    #         # g.write_toomre()
-    #         g.write_toomre_interpl()
-    #         # g.write_swing_ampli()
-    #         # g.write_swing_ampli_interpl()
-    #     except Exception as e:
-    #         print(e)
-    #         print(n)
+    for n in names:
+        try:
+            g = Galaxy(n)
+            g.plot_profiles(save=True, show=False)
+            # g.write_toomre()
+            # g.write_toomre_interpl()
+            # g.write_swing_ampli()
+            # g.write_swing_ampli_interpl()
+        except Exception as e:
+            print(e)
+            print(n)

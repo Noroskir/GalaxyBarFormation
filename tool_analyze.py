@@ -6,6 +6,7 @@ import subprocess
 import galaxy as g
 import photometrics as ph
 from scipy import integrate
+from astropy.io import fits
 
 P = ph.Photometrics("data/cut_photometrics.fits")
 
@@ -261,18 +262,34 @@ def get_type(names):
         names (list): list of galaxie names.
     Returns:
         list: list with Hubble types."""
-    f = open("data/CALIFA_master_selection.txt", 'r')
-    lines = f.readlines()
-    galaxy = list()
-    hType = list()
-    for l in lines:
-        l = l.split()
-        if l[0][0] != '#':
-            galaxy.append(l[1])
-            hType.append(l[10])
-    d = {galaxy[i]: hType[i] for i in range(len(galaxy))}
 
-    return [d[n] for n in names]
+    dataMS = fits.open("data/sample/CALIFA_2_MS_class.fits")[1].data
+    dataES = fits.open("data/sample/CALIFA_2_ES_class.fits")[1].data
+    hType = []
+    for i in range(len(names)):
+        t = ''
+        ind = np.where(dataMS['REALNAME'] == names[i])[0]
+        if len(ind) != 0:
+            ind = ind[0]
+            t = dataMS['hubtyp'][ind] + dataMS['hubsubtyp'][ind]
+        else:
+            ind = np.where(dataES['realname'] == names[i])[0][0]
+            t = dataES['hubtyp'][ind] + dataES['hubsubtyp'][ind]
+        hType.append(t)
+    return hType
+    ##############################
+    # f = open("data/CALIFA_master_selection.txt", 'r')
+    # lines = f.readlines()
+    # galaxy = list()
+    # hType = list()
+    # for l in lines:
+    #     l = l.split()
+    #     if l[0][0] != '#':
+    #         galaxy.append(l[1])
+    #         hType.append(l[10])
+    # d = {galaxy[i]: hType[i] for i in range(len(galaxy))}
+
+    # return [d[n] for n in names]
 
 
 def get_redshift(names):
@@ -533,3 +550,20 @@ def filter_type(R, Q, names, hType):
             rR.append(R[i])
             rQ.append(Q[i])
     return np.array(rR), np.array(rQ)
+
+
+def clearly_classified(names, Q, classif, barred):
+    """Return the Q values only for galaxies classified
+    as classif.
+    Args:
+        Q (np.array): the Q values
+        classif (str): the classification to return
+        barred (dict): dict {'name': 'barredness'}
+    Returns:
+        np.array.
+    """
+    rQ = []
+    for i in range(len(names)):
+        if barred[names[i]] == classif:
+            rQ.append(Q[i])
+    return np.array(rQ)

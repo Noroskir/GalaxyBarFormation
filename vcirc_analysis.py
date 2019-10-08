@@ -3,6 +3,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import tool_analyze as ta
 import galaxy as g
+import gaussFilter as gf
 from scipy import stats
 
 # get the data
@@ -47,7 +48,7 @@ def plot_Q_profile(name):
 def plot_X_profile(name):
     G = g.Galaxy(name)
     R = G.data['R']
-    X = G.swing_amplif_X()
+    X = G.swing_amplif_X(R)
     plt.plot(R, X)
     plt.title(r'Swing Amplification Parameter X '+name)
     plt.ylabel(r'X')
@@ -61,7 +62,7 @@ def plot_X_profile(name):
 def plot_Q_X_profile(name):
     G = g.Galaxy(name)
     R = G.data['R']
-    X = G.swing_amplif_X()
+    X = G.swing_amplif_X(R)
     Q, eQ = G.get_toomre()
     plt.plot(R, Q, color='red', label='Q')
     plt.errorbar(R, Q, yerr=eQ, fmt='.-', color='red', capsize=2)
@@ -95,7 +96,7 @@ def plot_sigR_profile(name):
 def plot_vcirc_profile(name):
     G = g.Galaxy(name)
     R = G.data['R']
-    vcirc = G.velocity_vcirc()
+    vcirc = G.velocity_vcirc(R)
     plt.plot(R, vcirc, color='red')
     plt.grid()
     plt.title(r'Circular Velocity ' + name)
@@ -450,12 +451,14 @@ def stack_Q_profile_mass():
     RSdisk, QSdisk, = ta.mass_bin(iRdisk, iQdisk, Mdisk, mbins)
     RSelli, QSelli, = ta.mass_bin(iRelli, iQelli, Melli, mbins)
     step = 0.05
+    width = 0.05
     for i in range(len(gElli)):
         c2 = cmap((Melli[i]-valmin)/(valmax-valmin))
         ax[0].semilogy(Relli[i], Qelli[i], 'x', color=c2, alpha=0.8)
     for i in range(len(RSelli)):
         c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
         R, Q = ta.stack_curves(RSelli[i], QSelli[i], step, threshold=4)
+        R, Q = gf.smooth_data(R, Q, width)
         ax[0].semilogy(R, Q, lw=2, color=c)
     for i in range(len(gDisk)):
         c2 = cmap((Mdisk[i]-valmin)/(valmax-valmin))
@@ -463,6 +466,7 @@ def stack_Q_profile_mass():
     for i in range(len(RSdisk)):
         c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
         R, Q = ta.stack_curves(RSdisk[i], QSdisk[i], step, threshold=4)
+        R, Q = gf.smooth_data(R, Q, width)
         ax[1].semilogy(R, Q, lw=2, color=c)
     for i in range(len(Rbar)):
         c2 = cmap((Mbar[i]-valmin)/(valmax-valmin))
@@ -472,6 +476,7 @@ def stack_Q_profile_mass():
             print('Empty bin: {}'.format(i))
         c = cmap(((mbins[i]+mbins[i+1])/2-valmin)/(valmax-valmin))
         R, Q = ta.stack_curves(RSbar[i], QSbar[i], step, threshold=1)
+        R, Q = gf.smooth_data(R, Q, width)
         ax[2].semilogy(R, Q, lw=2, color=c)
     ax[0].set_title('Elliptical Galaxies')
     ax[1].set_title('Late Type Galaxies Without Bar')
@@ -546,15 +551,19 @@ def stack_X_profile_mass():
 
 
 def hist_Q_mean():
-    res = stats.ks_2samp(Qbar_mean, Qdisk_mean)
+    # Qbar = ta.clearly_classified(gBar, Qbar_mean, 'SB', barredness)
+    # Qdisk = ta.clearly_classified(gDisk, Qdisk_mean, 'SA', barredness)
+    Qbar = Qbar_mean
+    Qdisk = Qdisk_mean
+    res = stats.ks_2samp(Qbar, Qdisk)
     print("\n"+"*"*20)
     print("KS test for mean of Q:")
     print(res)
     fig, ax = plt.subplots(1, 1, figsize=(6, 5))
     bins = np.linspace(0, 6, 20)
-    ax.hist(Qdisk_mean, bins=bins, label='No Bar', alpha=0.7)
+    ax.hist(Qdisk, bins=bins, label='No Bar', alpha=0.7)
     ax.margins(0.05)
-    ax.hist(Qbar_mean, bins=bins, label='Bar', alpha=0.7)
+    ax.hist(Qbar, bins=bins, label='Bar', alpha=0.7)
     ax.legend()
     ax.set(title='Barred and Non-Barred Galaxies', xlabel='Mean of Q')
     plt.savefig("figures/report/Integrated/hist_Q_mean.pdf")
@@ -896,6 +905,39 @@ def scatter_X_lambRe_mean():
     plt.close()
 
 
+def scatter_Q_frac():
+    fig, ax = plt.subplots(1, 3, figsize=(18, 5), sharey=True, sharex=True)
+    fig.subplots_adjust(wspace=0)
+    cmap = plt.cm.get_cmap('jet')
+    valmax = max(np.append(Melli, np.append(Mbar, Mdisk)))
+    valmin = min(np.append(Melli, np.append(Mbar, Mdisk)))
+    for i in range(len(gElli)):
+        c = cmap((Melli[i]-valmin)/(valmax-valmin))
+        ax[0].loglog(fracElli[i], Qelli_mean[i], 'o', color=c)
+    for i in range(len(gDisk)):
+        c = cmap((Mdisk[i]-valmin)/(valmax-valmin))
+        ax[1].loglog(fracDisk[i], Qdisk_mean[i], 'o', color=c)
+    for i in range(len(gBar)):
+        c = cmap((Mbar[i]-valmin)/(valmax-valmin))
+        ax[2].loglog(fracBar[i], Qbar_mean[i], 'o', color=c)
+    ax[0].set_title('Elliptical Galaxies')
+    ax[1].set_title('Late Type Galaxies Without Bar')
+    ax[2].set_title('Late Type Galaxies With Bar')
+    ax[0].set_ylabel(r'Q')
+    for i in [0, 1, 2]:
+        ax[i].grid()
+        # ax[i].set_ylim(0.2, 1e2)
+        ax[i].set_xlabel(r'M$_{stellar}$/M$_{dark}$')
+    norm = mpl.colors.Normalize(vmin=valmin, vmax=valmax)
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    clb = fig.colorbar(sm, ax=ax.ravel().tolist())
+    clb.set_label('Stellar Mass [log$_{10}($M/M$_{sun}$)]')
+    plt.savefig("figures/report/GalaxyProp/scatter_Q_frac_mean.pdf")
+    plt.show()
+    plt.close()
+
+
 def scatter_Q_RBar_mean():
     rbar = np.zeros(len(gBar))
     for i in range(len(gBar)):
@@ -987,7 +1029,6 @@ def plot_error_mass():
 
 if __name__ == '__main__':
     n = 'NGC6278'
-    # plot_error_hist()
     # plot_Q_profile(n)
     # plot_X_profile(n)
     # plot_Q_X_profile(n)
@@ -1012,6 +1053,7 @@ if __name__ == '__main__':
     # hist_Q_types_mean(['Sc', 'Scd', 'Sd'], 'Sc Scd Sd')
     # scatter_Q_mass_mean()
     # scatter_X_mass_mean()
+    scatter_Q_frac()
     scatter_Q_sigZ_mean()
     scatter_X_sigZ_mean()
     scatter_Q_lambRe_mean()

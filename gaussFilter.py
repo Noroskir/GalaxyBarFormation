@@ -21,13 +21,18 @@ def smooth_data(x, y, sig):
         sig (float):  the width of the gaussian
     Returns:
         np.array: the smoothed data at the x-values."""
+    # clear data from np.nan's
+    ind = np.where(np.isnan(y))
+    x = np.delete(x, ind)
+    y = np.delete(y, ind)
     sm_y = np.zeros(x.shape)
     for i in range(len(x)):
         gVal = gaussian(x, x[i], sig)
         gVal = gVal / np.sum(gVal)
+        y = np.nan_to_num(y)
         ySm = gVal.dot(y)
         sm_y[i] = ySm
-    return sm_y
+    return x, sm_y
 
 
 if __name__ == "__main__":

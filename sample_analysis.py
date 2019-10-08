@@ -374,7 +374,7 @@ def plot_joint_sample():
 
 
 if __name__ == "__main__":
-    d = Data()
+    # d = Data()
     # d.write_table(['UGC00029', 'NGC0499', 'NGC0932', 'NGC0962',
     #                'UGC02099', 'NGC1060', 'NGC1132', 'NGC1167',
     #                'NGC2513', 'NGC3615', 'NGC4816', 'NGC5423',
@@ -384,9 +384,9 @@ if __name__ == "__main__":
     #                'IC1602', 'UGC03960', 'MCG+07-17-002', 'NGC2484',
     #                'IC2378', 'IC2402',
     #                'CGCG429-012', 'NGC0426', 'NGC0472'])
-    # plot_overview()
-    # plot_bar_sample()
-    # plot_disk_sample()
-    # plot_joint_sample()
-    # MSbin_type()
-    # MSbin_mass()
+    plot_overview()
+    plot_bar_sample()
+    plot_disk_sample()
+    plot_joint_sample()
+    MSbin_type()
+    MSbin_mass()
