@@ -198,6 +198,8 @@ def get_median_mean_std(x):
     mean = np.zeros(len(x))
     std = np.zeros(len(x))
     for i in range(len(x)):
+        ind = np.where(np.isnan(x[i]))[0]
+        x[i] = np.delete(x[i], ind)
         median[i] = np.median(x[i])
         mean[i] = np.mean(x[i])
         std[i] = np.std(x[i], ddof=1)
@@ -467,6 +469,29 @@ def read_lambda_re(names):
         ind = nameFile.index(names[i])
         lambRe[i] = lambFile[ind]
     return lambRe
+
+
+def read_magnitude_dist(names):
+    """Get the distance and magnitude from the r-band growth curve magnitude in
+    the file 'CALIFA_master_selection.txt'.
+    Args:
+        names (list): names of the galaxies
+    Returns:
+        np.arrays.
+    """
+    f = open('data/CALIFA_master_selection.txt')
+    # index -5 in the lines
+    lines = f.readlines()
+    mag = dict()
+    dist = dict()
+    for l in lines:
+        if l[0][0] == '#':
+            continue
+        l = l.split()
+        mag[l[1]] = float(l[-5])
+        dist[l[1]] = float(l[2])
+    f.close()
+    return np.array([mag[n] for n in names]), np.array([dist[n] for n in names])
 
 
 def mass_overview(names):
